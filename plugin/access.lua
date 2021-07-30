@@ -84,6 +84,11 @@ ngx.log(ngx.INFO, "Request proxied through BFF plugin")
         invalid_cookie_error_response()
     end
 
+    if not access_token then
+        ngx.log(ngx.WARN, "Error when decrypting BFF cookie")
+        invalid_cookie_error_response()
+    end
+
     ngx.log(ngx.INFO, "Token successfully extracted from encrypted cookie")
     ngx.req.set_header("Authorization", "Bearer " .. access_token)
 
