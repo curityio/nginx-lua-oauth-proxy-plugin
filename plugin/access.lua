@@ -12,10 +12,7 @@ local function error_response(status, code, message, config)
     local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
     ngx.status = status
     ngx.header['content-type'] = 'application/json'
-
     ngx.header['Access-Control-Allow-Origin'] = config.trusted_web_origin
-    ngx.header['Access-Control-Allow-Credentials'] = 'true'
-
     ngx.say(jsonData)
     ngx.exit(status)
 end
