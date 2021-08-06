@@ -98,11 +98,14 @@ function _M.run(config)
     local cookie = ck:new()
 
     -- First verify the web origin
-    local web_origin = ngx.req.get_headers()["origin"]
-    ngx.log(ngx.WARN, "Found origin " .. web_origin)
-    if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
-        ngx.log(ngx.WARN, "The request was from an untrusted web origin")
-        unauthorized_request_error_response(config)
+    if config.trusted_web_origins then
+
+        local web_origin = ngx.req.get_headers()["origin"]
+        ngx.log(ngx.WARN, "Found origin " .. web_origin)
+        if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
+            ngx.log(ngx.WARN, "The request was from an untrusted web origin")
+            unauthorized_request_error_response(config)
+        end
     end
 
     -- Next verify that the main cookie was received and get the access token
