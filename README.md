@@ -16,14 +16,15 @@ plugins:
     config:
       encryption_key: NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP
       cookie_name_prefix: example
-      trusted_web_origin: http://www.example.com
+      trusted_web_origins:
+      - http://www.example.com
 ```
 
 | Property | Description |
 | -------- | ----------- |
 | Encryption Key | The encryption key used by the BFF API to create AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origin | The web origin from which the BFF will accept secure cookies |
+| Trusted Web Origins | The web origins from which the BFF will accept requests |
 
 ## More Information
 
