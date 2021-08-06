@@ -6,7 +6,7 @@ return {
             fields = {
                 { encryption_key = { type = "string", required = true } },
                 { cookie_name_prefix = { type = "string", required = false, default = "bff" } },
-                { trusted_web_origin = { type = "string", required = false } }
+                { trusted_web_origin = { type = "string", required = true } }
             }
         }}
     }
