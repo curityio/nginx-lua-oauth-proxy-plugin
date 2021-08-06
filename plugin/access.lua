@@ -4,6 +4,16 @@ local aes = require "resty.aes"
 local string = require "string"
 local table = require "table"
 
+local function array_has_value(arr, val)
+    for index, value in ipairs(arr) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+
 --
 -- Return errors to the browser and ensure that the browser can read the response
 --
@@ -12,8 +22,16 @@ local function error_response(status, code, message, config)
     local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
     ngx.status = status
     ngx.header['content-type'] = 'application/json'
-    ngx.header['Access-Control-Allow-Origin'] = config.trusted_web_origin
-    ngx.header['Access-Control-Allow-Credentials'] = 'true'
+
+    if config.trusted_web_origins then
+
+        local origin = ngx.req.get_headers()["origin"]
+        if origin and array_has_value(config.trusted_web_origins, origin) then
+            ngx.header['Access-Control-Allow-Origin'] = origin
+            ngx.header['Access-Control-Allow-Credentials'] = 'true'
+        end
+    end
+
     ngx.say(jsonData)
     ngx.exit(status)
 end
@@ -81,7 +99,8 @@ function _M.run(config)
 
     -- First verify the web origin
     local web_origin = ngx.req.get_headers()["origin"]
-    if not web_origin or web_origin ~= config.trusted_web_origin  then
+    ngx.log(ngx.WARN, "Found origin " .. web_origin)
+    if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
         ngx.log(ngx.WARN, "The request was from an untrusted web origin")
         unauthorized_request_error_response(config)
     end
