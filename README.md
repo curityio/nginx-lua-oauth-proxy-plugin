@@ -3,7 +3,7 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A LUA plugin that acts as an `OAuth Proxy` as part of a [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern) solution.
+A LUA plugin that acts as an `OAuth Proxy` when implementing the [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern) for SPAs.
 
 - This enables an SPA to use only secure `SameSite=strict` cookies during API calls
 - The plugin translates cookies to tokens so that APIs receive JWTs in the standard way
