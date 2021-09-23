@@ -1,10 +1,12 @@
-# Kong BFF Token Plugin
+# Kong Back End for Front End (BFF) Plugin
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A LUA plugin to demonstrate how to handle translation from secure SameSite cookies to access tokens.\
-This is used within a wider `Back End for Front End` solution when the SPA makes calls to APIs.
+A LUA plugin that acts as an `OAuth Proxy` as part of a [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern) solution.
+
+- This enables an SPA to use only secure `SameSite=strict` cookies during API calls
+- The plugin translates cookies to tokens so that APIs receive JWTs in the standard way
 
 ## Configuration
 
@@ -24,7 +26,7 @@ plugins:
 | -------- | ----------- |
 | Encryption Key | The encryption key used by the BFF API to create AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origins | The web origins from which the BFF will accept requests |
+| Trusted Web Origins | The web origins from which the OAuth Proxy will accept requests |
 
 ## More Information
 
