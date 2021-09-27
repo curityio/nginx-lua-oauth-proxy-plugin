@@ -26,7 +26,7 @@ The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plu
 See also the following resources:
 
 - The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to the plugin.
-- The [OAuth Agent API](https://github.com/curityio/web-oauth-via-bff), which issues the secure cookies for the SPA.
+- The [OAuth Agent API](https://github.com/curityio/bff-node-express), which issues the secure cookies for the SPA.
 
 ## Configuration
 
