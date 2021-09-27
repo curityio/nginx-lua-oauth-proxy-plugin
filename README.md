@@ -9,12 +9,24 @@ This is part of a `Back End for Front End` solution for SPAs, in line with [best
 ## The Token Handler Pattern
 
 The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Back End for Front End approach.\
-The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls from the SPA with secure cookies work seamlessly:
+The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
+The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls work seamlessly:
 
 ![Logical Components](/images/logical-components.png)
 
 The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
 See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
+
+## Components
+
+The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
+
+![API Flow](/images/api-flow.png)
+
+See also the following resources:
+
+- The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to the plugin.
+- The [OAuth Agent API](https://github.com/curityio/web-oauth-via-bff), which issues the secure cookies for the SPA.
 
 ## Configuration
 
@@ -32,15 +44,9 @@ plugins:
 
 | Property | Description |
 | -------- | ----------- |
-| Encryption Key | The encryption key used by the BFF API to create AES256 encrypted SameSite cookies |
+| Encryption Key | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origins | The web origins from which the OAuth Proxy will accept requests |
-
-## Deployment
-
-The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plugin](https://curity.io/resources/learn/phantom-token-pattern/), in which case this plugin runs first:
-
-![API Flow](/images/api-flow.png)
+| Trusted Web Origins | The web origins from which the plugin will accept requests |
 
 ## More Information
 
