@@ -3,10 +3,18 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A LUA plugin that acts as an `OAuth Proxy` when implementing the [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern) for SPAs.
+A LUA plugin that handles decryption of secure cookies and forwarding of JWTs to APIs.\
+This is part of a `Back End for Front End` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
 
-- This enables an SPA to use only secure `SameSite=strict` cookies during API calls
-- The plugin translates cookies to tokens so that APIs receive JWTs in the standard way
+## The Token Handler Pattern
+
+A modern evolution of Back End for Front End is used, called the [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/).\
+The plugin performs the role of the `OAuth Proxy`, to help enable an SPA to use only secure `SameSite=strict` cookies in the browser:
+
+![Logical Components](/images/logical-components.png)
+
+During API calls from the SPA, the plugin translates from cookies, to tokens so that APIs receive JWTs in the standard way.\
+See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
 
 ## Configuration
 
@@ -27,6 +35,12 @@ plugins:
 | Encryption Key | The encryption key used by the BFF API to create AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
 | Trusted Web Origins | The web origins from which the OAuth Proxy will accept requests |
+
+## Deployment
+
+The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plugin](https://curity.io/resources/learn/phantom-token-pattern/), in which case this plugin runs first:
+
+![API Flow](/images/api-flow.png)
 
 ## More Information
 
