@@ -3,17 +3,17 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A LUA plugin that handles decryption of secure cookies and forwarding of JWTs to APIs.\
+A LUA plugin that is used during API calls from SPA clients, to forward JWTs to APIs.\
 This is part of a `Back End for Front End` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
 
 ## The Token Handler Pattern
 
-A modern evolution of Back End for Front End is used, called the [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/).\
-The plugin performs the role of the `OAuth Proxy`, to help enable an SPA to use only secure `SameSite=strict` cookies in the browser:
+The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Back End for Front End approach.\
+The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls from the SPA with secure cookies work seamlessly:
 
 ![Logical Components](/images/logical-components.png)
 
-During API calls from the SPA, the plugin translates from cookies, to tokens so that APIs receive JWTs in the standard way.\
+The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
 See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
 
 ## Configuration
