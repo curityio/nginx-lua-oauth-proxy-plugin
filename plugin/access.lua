@@ -101,7 +101,6 @@ function _M.run(config)
     if config.trusted_web_origins then
 
         local web_origin = ngx.req.get_headers()["origin"]
-        ngx.log(ngx.WARN, "Found origin " .. web_origin)
         if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
             ngx.log(ngx.WARN, "The request was from an untrusted web origin")
             unauthorized_request_error_response(config)

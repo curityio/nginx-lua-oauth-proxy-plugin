@@ -1,10 +1,32 @@
-# Kong BFF Token Plugin
+# Kong Backend for Frontend (BFF) Plugin
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A LUA plugin to demonstrate how to handle translation from secure SameSite cookies to access tokens.\
-This is used within a wider `Back End for Front End` solution when the SPA makes calls to APIs.
+A LUA plugin that is used during API calls from SPA clients, to forward JWTs to APIs.\
+This is part of a `Backend for Frontend` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
+
+## The Token Handler Pattern
+
+The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Backend for Frontend approach.\
+The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
+The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls work seamlessly:
+
+![Logical Components](/images/logical-components.png)
+
+The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
+See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
+
+## Components
+
+The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
+
+![API Flow](/images/api-flow.png)
+
+See also the following resources:
+
+- The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to the plugin.
+- The [OAuth Agent API](https://github.com/curityio/bff-node-express), which issues the secure cookies for the SPA.
 
 ## Configuration
 
@@ -22,9 +44,9 @@ plugins:
 
 | Property | Description |
 | -------- | ----------- |
-| Encryption Key | The encryption key used by the BFF API to create AES256 encrypted SameSite cookies |
+| Encryption Key | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origins | The web origins from which the BFF will accept requests |
+| Trusted Web Origins | The web origins from which the plugin will accept requests |
 
 ## More Information
 
