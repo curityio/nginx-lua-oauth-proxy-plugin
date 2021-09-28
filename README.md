@@ -1,14 +1,14 @@
-# Kong Back End for Front End (BFF) Plugin
+# Kong Backend for Frontend (BFF) Plugin
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
 A LUA plugin that is used during API calls from SPA clients, to forward JWTs to APIs.\
-This is part of a `Back End for Front End` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
+This is part of a `Backend for Frontend` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
 
 ## The Token Handler Pattern
 
-The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Back End for Front End approach.\
+The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Backend for Frontend approach.\
 The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
 The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls work seamlessly:
 
