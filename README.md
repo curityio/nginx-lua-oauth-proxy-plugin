@@ -4,7 +4,7 @@
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
 A LUA plugin to demonstrate how to handle translation from secure SameSite cookies to access tokens.\
-This is used within a wider `Back End for Front End` solution when the SPA makes calls to APIs.
+This is used within a wider `Backend for Frontend` solution when the SPA makes calls to APIs.
 
 ## Configuration
 
