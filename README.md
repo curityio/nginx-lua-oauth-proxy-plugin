@@ -1,4 +1,4 @@
-# Kong Backend for Frontend (BFF) Plugin
+# LUA Backend for Frontend (BFF) Plugin
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
@@ -12,7 +12,7 @@ The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-
 The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
 This plugin performs the role of an `OAuth Proxy` in this solution, to make API calls work seamlessly:
 
-![Logical Components](/images/logical-components.png)
+![Logical Components](/doc/logical-components.png)
 
 The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
 See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
@@ -21,7 +21,7 @@ See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service
 
 The plugin can be used standalone, or in conjunction with the [Phantom Token Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
 
-![API Flow](/images/api-flow.png)
+![API Flow](/doc/api-flow.png)
 
 See also the following resources:
 
@@ -30,23 +30,20 @@ See also the following resources:
 
 ## Configuration
 
-The plugin is configured with properties in the following manner and currently uses AES-CBC encryption:
-
-```yaml
-plugins:
-  - name: bff-token
-    config:
-      encryption_key: NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP
-      cookie_name_prefix: example
-      trusted_web_origins:
-      - http://www.example.com
-```
+The plugin is configured with the following properties and decrypts cookies encrypted via AES-256-CBC:
 
 | Property | Description |
 | -------- | ----------- |
 | Encryption Key | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origins | The web origins from which the plugin will accept requests |
+| Trusted Web Origins | The web origins from which the plugin will accept cookie requests |
+
+## Deployment and Testing
+
+The plugin can run in any NGINX based system as described in the following guides:
+
+- [Kong Open Source](/doc/kong.md)
+- [Openresty](/doc/openresty.md)
 
 ## More Information
 
