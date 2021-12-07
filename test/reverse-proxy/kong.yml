@@ -1,0 +1,19 @@
+_format_version: '2.1'
+_transform: true
+
+services:
+
+- name: business-api
+  url: http://apiserver:3001
+  routes:
+  - name: business-api-route
+    paths:
+    - /
+  plugins:
+  - name: bff-token
+    config:
+      encryption_key: NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP
+      cookie_name_prefix: example
+      trusted_web_origins:
+      - http://www.example.com
+  

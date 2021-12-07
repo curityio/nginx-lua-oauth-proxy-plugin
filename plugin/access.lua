@@ -62,6 +62,8 @@ local function decrypt_cookie(encrypted_cookie, encryption_key)
     local encrypted = ngx.unescape_uri(encrypted_cookie)
 
     local parts = split(encrypted, ":")
+    ngx.log(ngx.WARN, "*** IV: " .. parts[1])
+    ngx.log(ngx.WARN, "*** DATA: " .. parts[2])
 
     local iv = from_hex(parts[1])
     local data = from_hex(parts[2])

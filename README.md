@@ -48,10 +48,6 @@ plugins:
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
 | Trusted Web Origins | The web origins from which the plugin will accept requests |
 
-## Tests
-
-See the [Tests Instructions](tests/SETUP.md) for details on how to test the plugin before deployment.
-
 ## More Information
 
 Please visit [curity.io](https://curity.io/) for more information about the Curity Identity Server.

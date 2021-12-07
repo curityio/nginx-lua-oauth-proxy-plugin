@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+
+  reverse-proxy:
+    image: kong:2.6.0-alpine
+    hostname: reverseproxy
+    ports:
+      - 3000:3000
+    volumes:
+      - ./reverse-proxy/kong.yml:/usr/local/kong/declarative/kong.yml
+      - ../plugin:/usr/local/share/lua/5.1/kong/plugins/bff-token
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
+      KONG_PROXY_LISTEN: '0.0.0.0:3000'
+      KONG_LOG_LEVEL: 'info'
+      KONG_PLUGINS: 'bundled,bff-token'
+
+  business-api:
+    hostname: apiserver
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
