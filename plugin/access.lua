@@ -1,8 +1,6 @@
 local _M = { conf = {} }
-local ck = require "resty.cookie"
+local ck  = require "resty.cookie"
 local aes = require "resty.aes"
-local string = require "string"
-local table = require "table"
 
 local function array_has_value(arr, val)
     for index, value in ipairs(arr) do
@@ -14,9 +12,6 @@ local function array_has_value(arr, val)
     return false
 end
 
---
--- Return errors to the browser and ensure that the browser can read the response
---
 local function error_response(status, code, message, config)
 
     local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
@@ -36,9 +31,6 @@ local function error_response(status, code, message, config)
     ngx.exit(status)
 end
 
---
--- Return a generic message for all three of these error categories
---
 local function unauthorized_request_error_response(config)
     error_response(ngx.HTTP_UNAUTHORIZED, "unauthorized", "The request failed cookie authorization", config)
 end
@@ -85,19 +77,28 @@ local function decrypt_cookie(encrypted_cookie, encryption_key)
     return aes_256_cbc_md5:decrypt(data)
 end
 
+function _M.testRun(first, second)
+    return first + second
+end
+
 --
 -- The public entry point to decrypt the BFF cookie and then forward the token to the API
 --
 function _M.run(config)
 
+    -- If there is already a bearer token, eg for mobile clients, return immediately
+    local auth_header = ngx.req.get_headers()['Authorization']
+    if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
+        return
+    end
+
+    -- Ignore pre-flight requests from browser clients
     local method = ngx.req.get_method() 
     if method == "OPTIONS" then
         return
     end
 
-    local cookie = ck:new()
-
-    -- First verify the web origin
+    -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
     if config.trusted_web_origins then
 
         local web_origin = ngx.req.get_headers()["origin"]
@@ -108,19 +109,21 @@ function _M.run(config)
     end
 
     -- Next verify that the main cookie was received and get the access token
+    local cookie = ck:new()
     local at_cookie, err = cookie:get(config.cookie_name_prefix .. "-at")
     if err or not at_cookie then
         ngx.log(ngx.WARN, get_error_message("No access token cookie was sent with the request", err))
         unauthorized_request_error_response(config)
     end
 
+    -- Decrypt the cookie, which is encrypted using AES256-CBC
     local access_token, err = decrypt_cookie(at_cookie, config.encryption_key)
     if err or not access_token then
         ngx.log(ngx.WARN, get_error_message("Error when decrypting access token cookie - ", err))
         unauthorized_request_error_response(config)
     end
 
-    -- For data changing requests we also expect a CSRF header to be sent with the double submit cookie
+    -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
     if method == "POST" or method == "PUT" or method == "DELETE" or method == "PATCH" then
 
         local csrf_cookie, err = cookie:get(config.cookie_name_prefix .. "-csrf")
@@ -142,6 +145,7 @@ function _M.run(config)
         end
     end
 
+    -- Forward the access token to the next stage of processing
     ngx.log(ngx.INFO, "Secure cookies were successfully authorized")
     ngx.req.set_header("Authorization", "Bearer " .. access_token)
 

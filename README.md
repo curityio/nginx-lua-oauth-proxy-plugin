@@ -10,7 +10,7 @@ This is part of a `Backend for Frontend` solution for SPAs, in line with [best p
 
 The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-pattern/) is a modern evolution of a Backend for Frontend approach.\
 The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
-The plugin performs the role of the `OAuth Proxy` in this solution, to make API calls work seamlessly:
+This plugin performs the role of an `OAuth Proxy` in this solution, to make API calls work seamlessly:
 
 ![Logical Components](/images/logical-components.png)
 
@@ -19,18 +19,18 @@ See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service
 
 ## Components
 
-The plugin can be used standalone, or in conjunction with the [Phantom Tokem Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
+The plugin can be used standalone, or in conjunction with the [Phantom Token Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
 
 ![API Flow](/images/api-flow.png)
 
 See also the following resources:
 
-- The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to the plugin.
+- The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to this plugin.
 - The [OAuth Agent API](https://github.com/curityio/bff-node-express), which issues the secure cookies for the SPA.
 
 ## Configuration
 
-The plugin is configured with properties in the following manner:
+The plugin is configured with properties in the following manner and currently uses AES-CBC encryption:
 
 ```yaml
 plugins:
@@ -47,6 +47,10 @@ plugins:
 | Encryption Key | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
 | Trusted Web Origins | The web origins from which the plugin will accept requests |
+
+## Tests
+
+See the [Tests Instructions](tests/SETUP.md) for details on how to test the plugin before deployment.
 
 ## More Information
 
