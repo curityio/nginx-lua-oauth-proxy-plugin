@@ -18,8 +18,8 @@ rewrite_by_lua_block {
         }
     }
 
-    local bffToken = require 'bff-token-plugin'
-    bffToken.run(config)
+    local oauthProxy = require 'oauth-proxy'
+    oauthProxy.run(config)
 }
 ```
 

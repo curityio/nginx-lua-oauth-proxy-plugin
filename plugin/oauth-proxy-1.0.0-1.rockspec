@@ -1,10 +1,10 @@
-package = "bff-token"
+package = "oauth-proxy"
 version = "1.0.0-1"
 source = {
   url = "."
 }
 description = {
-  summary = "A Kong custom plugin to implement the bff token pattern"
+  summary = "A Kong custom plugin that decrypts secure cookies and reads access tokens"
 }
 dependencies = {
   "lua >= 5.1"

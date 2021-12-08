@@ -11,13 +11,13 @@ services:
       - 3000:3000
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
-      - ../plugin:/usr/local/share/lua/5.1/kong/plugins/bff-token
+      - ../plugin:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
       KONG_PROXY_LISTEN: '0.0.0.0:3000'
       KONG_LOG_LEVEL: 'info'
-      KONG_PLUGINS: 'bundled,bff-token'
+      KONG_PLUGINS: 'bundled,oauth-proxy'
     profiles:
       - kong
 
@@ -31,7 +31,7 @@ services:
       - 3000:3000
     volumes:
       - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-      - ../plugin/access.lua:/usr/local/openresty/lualib/bff-token-plugin.lua
+      - ../plugin/access.lua:/usr/local/openresty/lualib/oauth-proxy.lua
       - ./lua-resty-cookie/lib/resty/cookie.lua:/usr/local/openresty/lualib/resty/cookie.lua
     profiles:
       - openresty

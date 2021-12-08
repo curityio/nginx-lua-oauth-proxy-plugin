@@ -42,8 +42,8 @@ The plugin is configured with the following properties and decrypts AES256 encry
 
 The plugin allows you to configure reverse proxy routes the same for web and mobile clients of your APIs:
 
-| Client Type |
-| ----------- |
+| Client Type | Routing Behavior |
+| ----------- | ---------------- |
 | SPA | No authorization header is sent, and one is calculated from secure cookies received |
 | Mobile | If an authorization header is received, it is passed straight through to the API |
 

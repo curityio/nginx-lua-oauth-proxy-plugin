@@ -8,7 +8,7 @@ The `deploy/kong/kong.yml` file configures the plugin with these details for tes
 
 ```yaml
 plugins:
-  - name: bff-token
+  - name: oauth-proxy
     config:
       encryption_key: NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP
       cookie_name_prefix: example

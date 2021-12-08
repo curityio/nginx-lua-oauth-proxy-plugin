@@ -81,7 +81,7 @@ function _M.testRun(first, second)
 end
 
 --
--- The public entry point to decrypt the BFF cookie and then forward the token to the API
+-- The public entry point to decrypt a secure cookie from SPAs and forward the contained access token
 --
 function _M.run(config)
 

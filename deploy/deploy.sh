@@ -27,4 +27,4 @@ git clone https://github.com/cloudflare/lua-resty-cookie lua-resty-cookie
 #
 # Deploy the system
 #
-docker compose --profile "$PROFILE" --project-name bffplugin up --build --force-recreate
+docker compose --profile "$PROFILE" --project-name oauthproxy up --build --force-recreate

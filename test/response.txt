@@ -2,9 +2,9 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 Transfer-Encoding: chunked
 Connection: keep-alive
-Date: Wed, 08 Dec 2021 09:31:15 GMT
+Date: Wed, 08 Dec 2021 12:16:04 GMT
 X-Kong-Upstream-Latency: 1
-X-Kong-Proxy-Latency: 0
+X-Kong-Proxy-Latency: 1
 Via: kong/2.6.0
 
 {"accessToken":"42665300-efe8-419d-be52-07b53e208f46"}
