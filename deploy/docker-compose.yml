@@ -32,7 +32,6 @@ services:
     volumes:
       - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ../plugin/access.lua:/usr/local/openresty/lualib/oauth-proxy.lua
-      - ./lua-resty-cookie/lib/resty/cookie.lua:/usr/local/openresty/lualib/resty/cookie.lua
     profiles:
       - openresty
 

@@ -19,12 +19,6 @@ if [ "$PROFILE" != 'openresty' ] && [ "$PROFILE" != 'kong' ]; then
 fi
 
 #
-# Download this plugin which is not published to luarocks in an up to date manner
-#
-rm -rf lua-resty-cookie
-git clone https://github.com/cloudflare/lua-resty-cookie lua-resty-cookie
-
-#
 # Deploy the system
 #
 docker compose --profile "$PROFILE" --project-name oauthproxy up --build --force-recreate

@@ -1,5 +1,4 @@
 local _M = { conf = {} }
-local ck  = require "resty.cookie"
 local aes = require "resty.aes"
 
 local function array_has_value(arr, val)
@@ -108,9 +107,9 @@ function _M.run(config)
     end
 
     -- Next verify that the main cookie was received and get the access token
-    local cookie = ck:new()
-    local at_cookie, err = cookie:get(config.cookie_name_prefix .. "-at")
-    if err or not at_cookie then
+    local at_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-at"
+    local at_cookie = ngx.var[at_cookie_name]
+    if not at_cookie then
         ngx.log(ngx.WARN, get_error_message("No access token cookie was sent with the request", err))
         unauthorized_request_error_response(config)
     end
@@ -125,8 +124,9 @@ function _M.run(config)
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
     if method == "POST" or method == "PUT" or method == "DELETE" or method == "PATCH" then
 
-        local csrf_cookie, err = cookie:get(config.cookie_name_prefix .. "-csrf")
-        if err or not csrf_cookie then
+        local csrf_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-csrf"
+        local csrf_cookie = ngx.var[csrf_cookie_name]
+        if not csrf_cookie then
             ngx.log(ngx.WARN, get_error_message("No CSRF cookie was sent with the request", err))
             unauthorized_request_error_response(config)
         end
