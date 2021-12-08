@@ -38,6 +38,15 @@ The plugin is configured with the following properties and decrypts AES256 encry
 | Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
 | Trusted Web Origins | The web origins from which the plugin will accept cookie requests |
 
+## Defining Routes
+
+The plugin allows you to configure reverse proxy routes the same for web and mobile clients of your APIs:
+
+| Client Type |
+| ----------- |
+| SPA | No authorization header is sent, and one is calculated from secure cookies received |
+| Mobile | If an authorization header is received, it is passed straight through to the API |
+
 ## Deployment and Testing
 
 The plugin can run in any NGINX based system with the LUA module enabled.

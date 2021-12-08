@@ -85,9 +85,9 @@ end
 --
 function _M.run(config)
 
-    -- If there is already a bearer token, eg for mobile clients, return immediately
+    -- If there is already an authorization header, eg for mobile clients, return immediately
     local auth_header = ngx.req.get_headers()['Authorization']
-    if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
+    if auth_header then
         return
     end
 
