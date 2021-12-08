@@ -51,6 +51,31 @@ cd ../test
 
 This will output some details to visualize the technical behavior:
 
-```json
-TODO
+```text
+1. Testing OPTIONS request ...
+1. OPTIONS request was handled successfully by the plugin
+2. Testing POST with no credential ...
+2. POST with no credential failed with the expected error
+{
+  "code": "unauthorized",
+  "message": "The request failed cookie authorization"
+}
+3. Testing POST from mobile client ...
+3. POST from mobile client was successfully routed to the API
+{
+  "accessToken": "678123egd2huor34"
+}
+4. Testing GET from an untrusted web origin ...
+4. GET from an untrusted web origin was handled correctly
+{
+  "code": "unauthorized",
+  "message": "The request failed cookie authorization"
+}
+5. Testing CORS headers for error responses to the SPA ...
+5. CORS error responses to the SPA have the correct headers
+6. Testing GET with a valid encrypted cookie ...
+6. GET with a valid encrypted cookie was successfully routed to the API
+{
+  "accessToken": "1234567890"
+}
 ```

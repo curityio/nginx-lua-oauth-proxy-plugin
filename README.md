@@ -1,4 +1,4 @@
-# LUA Backend for Frontend (BFF) Plugin
+# OAuth Proxy Plugin for NGINX LUA Systems
 
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
@@ -30,7 +30,7 @@ See also the following resources:
 
 ## Configuration
 
-The plugin is configured with the following properties and decrypts cookies encrypted via AES-256-CBC:
+The plugin is configured with the following properties and decrypts AES256 encrypted cookies:
 
 | Property | Description |
 | -------- | ----------- |
@@ -40,7 +40,8 @@ The plugin is configured with the following properties and decrypts cookies encr
 
 ## Deployment and Testing
 
-The plugin can run in any NGINX based system with the LUA module enabled:
+The plugin can run in any NGINX based system with the LUA module enabled.
+See the [NGINX LUA OAuth Proxy Plugin](https://curity.io/resources/learn/oauth-proxy-plugin-lua) tutorial for further details.
 
 - [Kong Open Source](/doc/kong.md)
 - [OpenResty](/doc/openresty.md)
