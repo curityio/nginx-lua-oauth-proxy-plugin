@@ -49,16 +49,13 @@ local function from_hex(str)
     end))
 end
 
-local function get_error_message(baseMessage, err)
-    local message = baseMessage
-    if err then
-        message = message .. ": " .. err
-    end
-    return message
-end
-
 local function decrypt_cookie(encrypted_cookie, encryption_key)
     local encrypted = ngx.unescape_uri(encrypted_cookie)
+
+    if not string.find(encrypted, ":") then
+        ngx.log(ngx.WARN, "Malformed cookie received with no valid separator")
+        return nil
+    end
 
     local parts = split(encrypted, ":")
     local iv = from_hex(parts[1])
@@ -68,8 +65,8 @@ local function decrypt_cookie(encrypted_cookie, encryption_key)
     local aes_256_cbc_md5, err = aes:new(encryption_key, nil, cipher, { iv=iv })
 
     if err then
-        ngx.log(ngx.WARN, "Error creating decipher" .. err)
-        return
+        ngx.log(ngx.WARN, "Error creating decipher: " .. err)
+        return nil
     end
 
     return aes_256_cbc_md5:decrypt(data)
@@ -85,13 +82,13 @@ end
 function _M.run(config)
 
     -- If there is already an authorization header, eg for mobile clients, return immediately
-    local auth_header = ngx.req.get_headers()['Authorization']
+    local auth_header = ngx.req.get_headers()['AUthorization']
     if auth_header then
         return
     end
 
     -- Ignore pre-flight requests from browser clients
-    local method = ngx.req.get_method() 
+    local method = ngx.req.get_method():upper()
     if method == "OPTIONS" then
         return
     end
@@ -110,14 +107,14 @@ function _M.run(config)
     local at_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-at"
     local at_cookie = ngx.var[at_cookie_name]
     if not at_cookie then
-        ngx.log(ngx.WARN, get_error_message("No access token cookie was sent with the request", err))
+        ngx.log(ngx.WARN, "No access token cookie was sent with the request")
         unauthorized_request_error_response(config)
     end
 
     -- Decrypt the cookie, which is encrypted using AES256-CBC
-    local access_token, err = decrypt_cookie(at_cookie, config.encryption_key)
-    if err or not access_token then
-        ngx.log(ngx.WARN, get_error_message("Error when decrypting access token cookie - ", err))
+    local access_token = decrypt_cookie(at_cookie, config.encryption_key)
+    if not access_token then
+        ngx.log(ngx.WARN, "Error decrypting access token cookie")
         unauthorized_request_error_response(config)
     end
 
@@ -127,25 +124,24 @@ function _M.run(config)
         local csrf_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-csrf"
         local csrf_cookie = ngx.var[csrf_cookie_name]
         if not csrf_cookie then
-            ngx.log(ngx.WARN, get_error_message("No CSRF cookie was sent with the request", err))
+            ngx.log(ngx.WARN, "No CSRF cookie was sent with the request")
             unauthorized_request_error_response(config)
         end
 
-        local csrf_token, err = decrypt_cookie(csrf_cookie, config.encryption_key)
-        if err or not csrf_token then
-            ngx.log(ngx.WARN, get_error_message("Error when decrypting CSRF cookie", err))
+        local csrf_token = decrypt_cookie(csrf_cookie, config.encryption_key)
+        if not csrf_token then
+            ngx.log(ngx.WARN, "Error decrypting CSRF cookie")
             unauthorized_request_error_response(config)
         end
 
         local csrf_header = ngx.req.get_headers()["x-" .. config.cookie_name_prefix .. "-csrf"]
         if not csrf_header or csrf_header ~= csrf_token  then
-            ngx.log(ngx.WARN, get_error_message("Invalid or missing CSRF request header", err))
+            ngx.log(ngx.WARN, "Invalid or missing CSRF request header")
             unauthorized_request_error_response(config)
         end
     end
 
     -- Forward the access token to the next stage of processing
-    ngx.log(ngx.INFO, "Secure cookies were successfully authorized")
     ngx.req.set_header("Authorization", "Bearer " .. access_token)
 
 end

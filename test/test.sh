@@ -199,3 +199,21 @@ fi
 echo '10. POST with correct CSRF cookie and header was successfully routed to the API'
 JSON=$(tail -n 1 $RESPONSE_FILE)
 echo $JSON | jq
+
+
+#
+# Verify that malformed cookies are correctly rejected
+#
+echo '11. Testing GET with malformed access token cookie ...'
+ENCRYPTED_ACCESS_TOKEN=$(node utils/encrypt.js "$ACCESS_TOKEN")
+HTTP_STATUS=$(curl -i -s -X GET "$API_URL" \
+-H "origin: $WEB_ORIGIN" \
+-H "cookie: example-at=" \
+-o $RESPONSE_FILE -w '%{http_code}')
+if [ "$HTTP_STATUS" != '401' ]; then
+  echo '*** GET with malformed access token cookie did not result in the expected error'
+  exit
+fi
+echo '11. GET with malformed access token cookie was successfully rejected'
+JSON=$(tail -n 1 $RESPONSE_FILE)
+echo $JSON | jq
