@@ -1,6 +1,7 @@
 # OpenResty Setup
 
-This briefly shows how to deploy and test the plugin to OpenResty using Docker Desktop.
+This briefly shows how to deploy and test the plugin to OpenResty using Docker Desktop.\
+Equivalent steps can be followed for other NGINX setups with the LUA module enabled.
 
 ## Configure the Plugin
 
