@@ -80,3 +80,5 @@ echo $JSON | jq
 #
 # TODO: POST, OWASP checks etc
 #
+
+First check LUA branch updates and apply them to LUA consolidation branch
