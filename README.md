@@ -40,10 +40,10 @@ The plugin is configured with the following properties and decrypts cookies encr
 
 ## Deployment and Testing
 
-The plugin can run in any NGINX based system as described in the following guides:
+The plugin can run in any NGINX based system with the LUA module enabled:
 
 - [Kong Open Source](/doc/kong.md)
-- [Openresty](/doc/openresty.md)
+- [OpenResty](/doc/openresty.md)
 
 ## More Information
 
