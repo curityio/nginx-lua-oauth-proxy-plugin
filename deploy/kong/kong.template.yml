@@ -12,7 +12,7 @@ services:
   plugins:
   - name: oauth-proxy
     config:
-      encryption_key: ENCRYPTION_KEY
+      encryption_key: $ENCRYPTION_KEY
       cookie_name_prefix: example
       trusted_web_origins:
       - http://www.example.com

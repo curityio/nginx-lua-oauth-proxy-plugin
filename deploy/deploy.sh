@@ -27,9 +27,7 @@ export ENCRYPTION_KEY='NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP'
 # For Kong we must update a template file
 #
 if [ "$PROFILE" == 'kong' ]; then
-  KONG_YML_DATA=$(cat ./kong/kong.template.yml)
-  KONG_YML_DATA=$(sed "s/ENCRYPTION_KEY/$ENCRYPTION_KEY/g" <<< "$KONG_YML_DATA")
-  echo "$KONG_YML_DATA" > ./kong/kong.yml
+  envsubst < kong/kong.template.yml > ./kong/kong.yml
 fi
 
 #
