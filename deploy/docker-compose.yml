@@ -11,7 +11,10 @@ services:
       - 3000:3000
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
-      - ../plugin:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy
+      - ../plugin/oauth-proxy.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/access.lua
+      - ../plugin/kong/handler.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/handler.lua
+      - ../plugin/kong/schema.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/schema.lua
+      - ../plugin/kong/oauth-proxy-1.0.0-1.rockspec:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/oauth-proxy-1.0.0-1.rockspec
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
@@ -31,7 +34,7 @@ services:
       - 3000:3000
     volumes:
       - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-      - ../plugin/access.lua:/usr/local/openresty/lualib/oauth-proxy.lua
+      - ../plugin/oauth-proxy.lua:/usr/local/openresty/lualib/oauth-proxy.lua
     environment:
       ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
     profiles:
