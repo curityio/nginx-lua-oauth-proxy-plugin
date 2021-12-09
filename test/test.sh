@@ -27,16 +27,17 @@ function getHeaderValue(){
 }
 
 #
-# Verify that access is denied for requests without a token or cookie
+# Verify that browser pre-flight requests without a token or cookie return immediately and are routed to the API
 #
 echo '1. Testing OPTIONS request ...'
 HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
+-H "origin: $WEB_ORIGIN" \
 -o $RESPONSE_FILE -w '%{http_code}')
 if [ "$HTTP_STATUS" != '200' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
   exit
 fi
-echo '1. OPTIONS request was handled successfully by the plugin'
+echo '1. OPTIONS request was successfully routed to the API'
 
 #
 # Verify that access is denied for GET requests without a token or cookie
@@ -57,7 +58,7 @@ echo $JSON | jq
 #
 echo '3. Testing POST from mobile client ...'
 HTTP_STATUS=$(curl -i -s -X POST "$API_URL" \
--H 'Authorization: Bearer 678123egd2huor34' \
+-H "Authorization: Bearer $ACCESS_TOKEN" \
 -o $RESPONSE_FILE -w '%{http_code}')
 if [ "$HTTP_STATUS" != '200' ]; then
   echo "*** POST from mobile client failed, status: $HTTP_STATUS"
@@ -205,7 +206,6 @@ echo $JSON | jq
 # Verify that malformed cookies are correctly rejected
 #
 echo '11. Testing GET with malformed access token cookie ...'
-ENCRYPTED_ACCESS_TOKEN=$(node utils/encrypt.js "$ACCESS_TOKEN")
 HTTP_STATUS=$(curl -i -s -X GET "$API_URL" \
 -H "origin: $WEB_ORIGIN" \
 -H "cookie: example-at=" \

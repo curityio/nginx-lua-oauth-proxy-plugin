@@ -72,24 +72,21 @@ local function decrypt_cookie(encrypted_cookie, encryption_key)
     return aes_256_cbc_md5:decrypt(data)
 end
 
-function _M.testRun(first, second)
-    return first + second
-end
-
 --
 -- The public entry point to decrypt a secure cookie from SPAs and forward the contained access token
 --
 function _M.run(config)
 
-    -- If there is already an authorization header, eg for mobile clients, return immediately
-    local auth_header = ngx.req.get_headers()['AUthorization']
-    if auth_header then
-        return
-    end
-
     -- Ignore pre-flight requests from browser clients
     local method = ngx.req.get_method():upper()
     if method == "OPTIONS" then
+        return
+    end
+
+    -- If there is already a bearer token, eg for mobile clients, return immediately
+    -- Note that the target API must always digitally verify the JWT access token
+    local auth_header = ngx.var.http_authorization
+    if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
         return
     end
 
@@ -101,21 +98,6 @@ function _M.run(config)
             ngx.log(ngx.WARN, "The request was from an untrusted web origin")
             unauthorized_request_error_response(config)
         end
-    end
-
-    -- Next verify that the main cookie was received and get the access token
-    local at_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-at"
-    local at_cookie = ngx.var[at_cookie_name]
-    if not at_cookie then
-        ngx.log(ngx.WARN, "No access token cookie was sent with the request")
-        unauthorized_request_error_response(config)
-    end
-
-    -- Decrypt the cookie, which is encrypted using AES256-CBC
-    local access_token = decrypt_cookie(at_cookie, config.encryption_key)
-    if not access_token then
-        ngx.log(ngx.WARN, "Error decrypting access token cookie")
-        unauthorized_request_error_response(config)
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
@@ -141,9 +123,23 @@ function _M.run(config)
         end
     end
 
-    -- Forward the access token to the next stage of processing
-    ngx.req.set_header("Authorization", "Bearer " .. access_token)
+    -- Next verify that the main cookie was received and get the access token
+    local at_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-at"
+    local at_cookie = ngx.var[at_cookie_name]
+    if not at_cookie then
+        ngx.log(ngx.WARN, "No access token cookie was sent with the request")
+        unauthorized_request_error_response(config)
+    end
 
+    -- Decrypt the access token cookie, which is encrypted using AES256
+    local access_token = decrypt_cookie(at_cookie, config.encryption_key)
+    if not access_token then
+        ngx.log(ngx.WARN, "Error decrypting access token cookie")
+        unauthorized_request_error_response(config)
+    end
+
+    -- Forward the access token to the next plugin or the target API
+    ngx.req.set_header("Authorization", "Bearer " .. access_token)
 end
 
 return _M
