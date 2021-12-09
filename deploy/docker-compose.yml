@@ -32,6 +32,8 @@ services:
     volumes:
       - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ../plugin/access.lua:/usr/local/openresty/lualib/oauth-proxy.lua
+    environment:
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
     profiles:
       - openresty
 
