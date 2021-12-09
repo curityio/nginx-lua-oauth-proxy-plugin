@@ -4,7 +4,7 @@ source = {
   url = "."
 }
 description = {
-  summary = "A Kong custom plugin that decrypts secure cookies and reads access tokens"
+  summary = "A LUA plugin that uses AES256 and and encryption key to decrypt secure cookies containing OAuth access tokens"
 }
 dependencies = {
   "lua >= 5.1"
