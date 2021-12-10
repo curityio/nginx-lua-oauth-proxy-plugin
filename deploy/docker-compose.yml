@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+
+  #
+  # Use Kong Open Source as the reverse proxy when the kong profile is set on the command line
+  #
+  kong:
+    image: kong:2.6.0-alpine
+    hostname: kongserver
+    ports:
+      - 3000:3000
+    volumes:
+      - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
+      - ../plugin/oauth-proxy.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/access.lua
+      - ../plugin/kong/handler.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/handler.lua
+      - ../plugin/kong/schema.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/schema.lua
+      - ../plugin/kong/oauth-proxy-1.0.0-1.rockspec:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/oauth-proxy-1.0.0-1.rockspec
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
+      KONG_PROXY_LISTEN: '0.0.0.0:3000'
+      KONG_LOG_LEVEL: 'info'
+      KONG_PLUGINS: 'bundled,oauth-proxy'
+    profiles:
+      - kong
+
+  #
+  # Use OpenResty as the reverse proxy when the openresty profile is set on the command line
+  #
+  openresty:
+    image: openresty/openresty:1.19.9.1-bionic
+    hostname: openrestyserver
+    ports:
+      - 3000:3000
+    volumes:
+      - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ../plugin/oauth-proxy.lua:/usr/local/openresty/lualib/oauth-proxy.lua
+    environment:
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
+    profiles:
+      - openresty
+
+  #
+  # A tiny API as a target for testing routing
+  #
+  business-api:
+    hostname: apiserver
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile

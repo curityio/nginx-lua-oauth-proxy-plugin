@@ -1,8 +1,5 @@
 local _M = { conf = {} }
-local ck = require "resty.cookie"
 local aes = require "resty.aes"
-local string = require "string"
-local table = require "table"
 
 local function array_has_value(arr, val)
     for index, value in ipairs(arr) do
@@ -14,9 +11,6 @@ local function array_has_value(arr, val)
     return false
 end
 
---
--- Return errors to the browser and ensure that the browser can read the response
---
 local function error_response(status, code, message, config)
 
     local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
@@ -36,9 +30,6 @@ local function error_response(status, code, message, config)
     ngx.exit(status)
 end
 
---
--- Return a generic message for all three of these error categories
---
 local function unauthorized_request_error_response(config)
     error_response(ngx.HTTP_UNAUTHORIZED, "unauthorized", "The request failed cookie authorization", config)
 end
@@ -58,19 +49,15 @@ local function from_hex(str)
     end))
 end
 
-local function get_error_message(baseMessage, err)
-    local message = baseMessage
-    if err then
-        message = message .. ": " .. err
-    end
-    return message
-end
-
 local function decrypt_cookie(encrypted_cookie, encryption_key)
     local encrypted = ngx.unescape_uri(encrypted_cookie)
 
-    local parts = split(encrypted, ":")
+    if not string.find(encrypted, ":") then
+        ngx.log(ngx.WARN, "Malformed cookie received with no valid separator")
+        return nil
+    end
 
+    local parts = split(encrypted, ":")
     local iv = from_hex(parts[1])
     local data = from_hex(parts[2])
 
@@ -78,26 +65,32 @@ local function decrypt_cookie(encrypted_cookie, encryption_key)
     local aes_256_cbc_md5, err = aes:new(encryption_key, nil, cipher, { iv=iv })
 
     if err then
-        ngx.log(ngx.WARN, "Error creating decipher" .. err)
-        return
+        ngx.log(ngx.WARN, "Error creating decipher: " .. err)
+        return nil
     end
 
     return aes_256_cbc_md5:decrypt(data)
 end
 
 --
--- The public entry point to decrypt the BFF cookie and then forward the token to the API
+-- The public entry point to decrypt a secure cookie from SPAs and forward the contained access token
 --
 function _M.run(config)
 
-    local method = ngx.req.get_method() 
+    -- Ignore pre-flight requests from browser clients
+    local method = ngx.req.get_method():upper()
     if method == "OPTIONS" then
         return
     end
 
-    local cookie = ck:new()
+    -- If there is already a bearer token, eg for mobile clients, return immediately
+    -- Note that the target API must always digitally verify the JWT access token
+    local auth_header = ngx.var.http_authorization
+    if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
+        return
+    end
 
-    -- First verify the web origin
+    -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
     if config.trusted_web_origins then
 
         local web_origin = ngx.req.get_headers()["origin"]
@@ -107,44 +100,46 @@ function _M.run(config)
         end
     end
 
-    -- Next verify that the main cookie was received and get the access token
-    local at_cookie, err = cookie:get(config.cookie_name_prefix .. "-at")
-    if err or not at_cookie then
-        ngx.log(ngx.WARN, get_error_message("No access token cookie was sent with the request", err))
-        unauthorized_request_error_response(config)
-    end
-
-    local access_token, err = decrypt_cookie(at_cookie, config.encryption_key)
-    if err or not access_token then
-        ngx.log(ngx.WARN, get_error_message("Error when decrypting access token cookie - ", err))
-        unauthorized_request_error_response(config)
-    end
-
-    -- For data changing requests we also expect a CSRF header to be sent with the double submit cookie
+    -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
     if method == "POST" or method == "PUT" or method == "DELETE" or method == "PATCH" then
 
-        local csrf_cookie, err = cookie:get(config.cookie_name_prefix .. "-csrf")
-        if err or not csrf_cookie then
-            ngx.log(ngx.WARN, get_error_message("No CSRF cookie was sent with the request", err))
+        local csrf_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-csrf"
+        local csrf_cookie = ngx.var[csrf_cookie_name]
+        if not csrf_cookie then
+            ngx.log(ngx.WARN, "No CSRF cookie was sent with the request")
             unauthorized_request_error_response(config)
         end
 
-        local csrf_token, err = decrypt_cookie(csrf_cookie, config.encryption_key)
-        if err or not csrf_token then
-            ngx.log(ngx.WARN, get_error_message("Error when decrypting CSRF cookie", err))
+        local csrf_token = decrypt_cookie(csrf_cookie, config.encryption_key)
+        if not csrf_token then
+            ngx.log(ngx.WARN, "Error decrypting CSRF cookie")
             unauthorized_request_error_response(config)
         end
 
         local csrf_header = ngx.req.get_headers()["x-" .. config.cookie_name_prefix .. "-csrf"]
         if not csrf_header or csrf_header ~= csrf_token  then
-            ngx.log(ngx.WARN, get_error_message("Invalid or missing CSRF request header", err))
+            ngx.log(ngx.WARN, "Invalid or missing CSRF request header")
             unauthorized_request_error_response(config)
         end
     end
 
-    ngx.log(ngx.INFO, "Secure cookies were successfully authorized")
-    ngx.req.set_header("Authorization", "Bearer " .. access_token)
+    -- Next verify that the main cookie was received and get the access token
+    local at_cookie_name = "cookie_" .. config.cookie_name_prefix .. "-at"
+    local at_cookie = ngx.var[at_cookie_name]
+    if not at_cookie then
+        ngx.log(ngx.WARN, "No access token cookie was sent with the request")
+        unauthorized_request_error_response(config)
+    end
 
+    -- Decrypt the access token cookie, which is encrypted using AES256
+    local access_token = decrypt_cookie(at_cookie, config.encryption_key)
+    if not access_token then
+        ngx.log(ngx.WARN, "Error decrypting access token cookie")
+        unauthorized_request_error_response(config)
+    end
+
+    -- Forward the access token to the next plugin or the target API
+    ngx.req.set_header("Authorization", "Bearer " .. access_token)
 end
 
 return _M
