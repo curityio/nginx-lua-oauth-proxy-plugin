@@ -5,7 +5,10 @@ services:
   # Use Kong Open Source as the reverse proxy when the kong profile is set on the command line
   #
   kong:
-    image: kong:2.6.0-alpine
+    image: custom_kong:2.6.0-alpine
+    build:
+      context: .
+      dockerfile: ./kong/Dockerfile
     hostname: kongserver
     ports:
       - 3000:3000
