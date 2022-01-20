@@ -1,5 +1,12 @@
 local _M = { conf = {} }
-local aes = require "resty.aes"
+
+local base64 = require 'ngx.base64'
+local cipher = require 'resty.openssl.cipher'
+
+local VERSION_SIZE    = 1
+local GCM_IV_SIZE     = 12
+local GCM_TAG_SIZE    = 16
+local CURRENT_VERSION = 1
 
 local function array_has_value(arr, val)
     for index, value in ipairs(arr) do
@@ -49,27 +56,45 @@ local function from_hex(str)
     end))
 end
 
-local function decrypt_cookie(encrypted_cookie, encryption_key)
-    local encrypted = ngx.unescape_uri(encrypted_cookie)
+local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
 
-    if not string.find(encrypted, ":") then
-        ngx.log(ngx.WARN, "Malformed cookie received with no valid separator")
-        return nil
-    end
-
-    local parts = split(encrypted, ":")
-    local iv = from_hex(parts[1])
-    local data = from_hex(parts[2])
-
-    local cipher = aes.cipher(256)
-    local aes_256_cbc_md5, err = aes:new(encryption_key, nil, cipher, { iv=iv })
-
+    local all_bytes, err = base64.decode_base64url(encrypted_cookie)
     if err then
-        ngx.log(ngx.WARN, "Error creating decipher: " .. err)
+        ngx.log(ngx.WARN, 'A received cookie could not be base64url decoded ' .. err)
         return nil
     end
 
-    return aes_256_cbc_md5:decrypt(data)
+    local min_size = VERSION_SIZE + GCM_IV_SIZE + 1 + GCM_TAG_SIZE
+    if #all_bytes < min_size then
+        ngx.log(ngx.WARN, 'A received cookie had an invalid length')
+        return nil
+    end
+
+    local offset = 1
+    local version_byte = string.byte(all_bytes, offset, VERSION_SIZE)
+    if version_byte ~= CURRENT_VERSION then
+        ngx.log(ngx.WARN, 'A received cookie had invalid format')
+        return nil
+    end
+
+    offset = 1 + VERSION_SIZE
+    local iv_bytes = string.sub(all_bytes, offset, VERSION_SIZE + GCM_IV_SIZE)
+  
+    offset = 1 + VERSION_SIZE + GCM_IV_SIZE
+    local ciphertext_bytes = string.sub(all_bytes, offset, #all_bytes - GCM_TAG_SIZE)
+
+    offset = #all_bytes - GCM_TAG_SIZE + 1
+    local tag_bytes = string.sub(all_bytes, offset, #all_bytes)
+
+    local cipher = cipher.new('aes-256-gcm')
+    local encryption_key_bytes = from_hex(encryption_key_hex)
+    local decrypted_cookie, err = cipher:decrypt(encryption_key_bytes, iv_bytes, ciphertext_bytes, true, nil, tag_bytes)
+    if err then
+        ngx.log(ngx.WARN, 'Error decrypting cookie: ' .. err)
+        return nil
+    end
+
+    return decrypted_cookie
 end
 
 --

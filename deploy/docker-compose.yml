@@ -28,7 +28,10 @@ services:
   # Use OpenResty as the reverse proxy when the openresty profile is set on the command line
   #
   openresty:
-    image: openresty/openresty:1.19.9.1-bionic
+    image: custom_openresty/openresty:1.19.9.1-bionic
+    build:
+      context: .
+      dockerfile: ./openresty/Dockerfile
     hostname: openrestyserver
     ports:
       - 3000:3000
