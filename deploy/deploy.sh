@@ -19,9 +19,9 @@ if [ "$PROFILE" != 'openresty' ] && [ "$PROFILE" != 'kong' ]; then
 fi
 
 #
-# Supply the encryption key as an environment variable
+# Supply the 32 byte encryption key for AES256 as an environment variable
 #
-export ENCRYPTION_KEY='NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP'
+export ENCRYPTION_KEY='4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50'
 
 #
 # For Kong we must update a template file

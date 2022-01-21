@@ -10,7 +10,7 @@ The `deploy/kong/kong.yml` file configures the plugin with these details for tes
 plugins:
   - name: oauth-proxy
     config:
-      encryption_key: NF65meV>Ls#8GP>;!Cnov)rIPRoK^.NP
+      encryption_key: 4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50
       cookie_name_prefix: example
       trusted_web_origins:
       - http://www.example.com
