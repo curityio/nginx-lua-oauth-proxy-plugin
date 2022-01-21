@@ -84,7 +84,7 @@ local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
     local ciphertext_bytes = string.sub(all_bytes, offset, #all_bytes - GCM_TAG_SIZE)
 
     offset = #all_bytes - GCM_TAG_SIZE + 1
-    local tag_bytes = string.sub(all_bytes, offset, #all_bytes)
+    local tag_bytes = string.sub(all_bytes, offset)
 
     local cipher = cipher.new('aes-256-gcm')
     local encryption_key_bytes = from_hex(encryption_key_hex)
