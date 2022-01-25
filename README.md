@@ -32,17 +32,18 @@ See also the following resources:
 
 The plugin is configured with the following properties and decrypts AES256 encrypted cookies:
 
-| Property | Required? | Description |
-| -------- | --------- | ----------- |
-| cookie_name_prefix | Yes | The prefix used in the SPA's cookie name, typically representing a company or product |
-| encryption_key | Yes | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
-| allow_tokens | Yes | If set to true, then requests with a bearer token are passed straight through to APIs |
-| trusted_web_origins | Yes | The web origins from which the plugin will accept cookie requests |
-| cors_enabled | Yes | If set to true, then the OAuth Proxy will provide a default CORS implementation |
-| cors_allowed_methods | No | The HTTP methods allowed when the SPA calls an API endpoint |
-| cors_allowed_headers | No | The HTTP request headers the SPA is allowed to send to the API |
-| cors_exposed_headers | No | The HTTP response headers the SPA's Javascript is allowed to read from the API |
-| cors_max_age | No | The time to live until the next HTTP OPTIONS request to an API endpoint |
+| Property | Required? | Default Value | Description |
+| -------- | --------- | ------------- | ----------- |
+| cookie_name_prefix | Yes | N/A | The prefix used in the SPA's cookie name, typically representing a company or product |
+| encryption_key | Yes | N/A | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
+| trusted_web_origins | Yes | Empty List | The web origins from which the plugin will accept cookie requests |
+| cors_enabled | Yes | true | If set to true, then the OAuth Proxy will provide a default CORS implementation |
+| cors_allowed_methods | No | Empty List | The HTTP methods allowed when the SPA calls an API endpoint |
+| cors_allowed_headers | No | Empty List | The HTTP request headers the SPA is allowed to send to the API |
+| cors_exposed_headers | No | Empty List | The HTTP response headers the SPA's Javascript is allowed to read from the API |
+| cors_max_age | No | Not written | The time to live until the next HTTP OPTIONS request to an API endpoint |
+| allow_tokens | No | false | If set to true, then requests with a bearer token are passed straight through to APIs |
+| remove_cookies | No | true | If set to true, then cookies are removed before forwarding requests to the API |
 
 ## Cross Origin Resource Sharing (CORS)
 
