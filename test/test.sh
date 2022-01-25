@@ -140,12 +140,6 @@ if [ "$CREDENTIALS" != 'true' ]; then
   exit
 fi
 
-METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'OPTIONS,GET,POST' ]; then
-  echo '*** The CORS access-control-allow-methods response header was not set correctly'
-  exit
-fi
-
 MAXAGE=$(getHeaderValue 'access-control-max-age')
 if [ "$MAXAGE" != '86400' ]; then
   echo '*** The CORS access-control-max-age response header was not set correctly'
@@ -284,7 +278,6 @@ fi
 echo '12. POST with correct CSRF cookie and header was successfully routed to the API'
 JSON=$(tail -n 1 $RESPONSE_FILE)
 echo $JSON | jq
-
 
 #
 # Verify that malformed cookies are correctly rejected

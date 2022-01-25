@@ -21,7 +21,7 @@ local function add_cors_response_headers(config)
 
     if config.trusted_web_origins then
 
-        local origin = ngx.req.get_headers()["origin"]
+        local origin = ngx.req.get_headers()['origin']
         if origin and array_has_value(config.trusted_web_origins, origin) then
             
             ngx.header['access-control-allow-origin'] = origin
@@ -29,10 +29,13 @@ local function add_cors_response_headers(config)
 
             if config.cors_enabled then
 
-                if config.cors_allowed_methods then
-                    local allowedMethods = table.concat(config.cors_allowed_methods, ',')
-                    if allowedMethods then
-                        ngx.header['access-control-allow-methods'] = allowedMethods
+                local method = ngx.req.get_method():upper()
+                if method == 'OPTIONS' then
+                    if config.cors_allowed_methods then
+                        local allowedMethods = table.concat(config.cors_allowed_methods, ',')
+                        if allowedMethods then
+                            ngx.header['access-control-allow-methods'] = allowedMethods
+                        end
                     end
                 end
 
@@ -62,13 +65,17 @@ end
 
 local function error_response(status, code, message, config)
 
-    local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
-    ngx.status = status
-    ngx.header['content-type'] = 'application/json'
-
     add_cors_response_headers(config)
 
-    ngx.say(jsonData)
+    local method = ngx.req.get_method():upper()
+    if method ~= 'HEAD' then
+    
+        local jsonData = '{"code":"' .. code .. '", "message":"' .. message .. '"}'
+        ngx.status = status
+        ngx.header['content-type'] = 'application/json'
+        ngx.say(jsonData)
+    end
+    
     ngx.exit(status)
 end
 
@@ -207,7 +214,7 @@ function _M.run(config)
     end
 
     -- Forward the access token to the next plugin or the target API
-    ngx.req.set_header("authorization", "Bearer " .. access_token)
+    ngx.req.set_header('authorization', 'Bearer ' .. access_token)
 end
 
 return _M
