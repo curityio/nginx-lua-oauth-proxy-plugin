@@ -47,7 +47,7 @@ The plugin is configured with the following properties and decrypts AES256 encry
 ## Cross Origin Resource Sharing
 
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) response headers for the SPA can be managed in the OAuth proxy.\
-This keeps cookie concerns out of APIs, and provides the following behavior for each API endpoint:
+This can be configured separately per API and keeps cookie concerns out of the API code:
 
 - CORS headers are only returned if the browser request's `origin` header is trusted
 - The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header allows the SPA's web origin to call the API
