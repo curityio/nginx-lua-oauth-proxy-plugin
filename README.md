@@ -46,13 +46,13 @@ The plugin is configured with the following properties and decrypts AES256 encry
 
 ## Cross Origin Resource Sharing
 
-[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) response headers can be configured for SPAs in the OAuth proxy.\
-This prevents the need to deal with cookie concerns in APIs, and provides the following behavior for each API endpoint:
+[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) response headers for the SPA can be managed in the OAuth proxy.\
+This keeps cookie concerns out of APIs, and provides the following behavior for each API endpoint:
 
 - CORS headers are only returned if the browser request's `origin` header is trusted
-- To instruct the browser to send cookies, the proxy returns the [Access-Control-Allow-Credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header
-- Wildcards are then not allowed in other CORS response headers, so they must be configured explicitly
-- The max age property is then used to reduce the number of subsequent pre-flight requests
+- To allow the browser to send cookies, the [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header is returned
+- Wildcards are then not allowed in other CORS response headers, such as [access-control-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
+- The [access-control-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) property is used to reduce the number of subsequent pre-flight requests
 
 ## Deployment and Testing
 
