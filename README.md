@@ -44,16 +44,19 @@ The plugin is configured with the following properties and decrypts AES256 encry
 | cors_exposed_headers | No | The HTTP response headers the SPA is allowed to read from the API |
 | cors_max_age | No | The time until the next HTTP OPTIONS request  |
 
-## Cross Origin Resource Sharing
+## Cross Origin Resource Sharing (CORS)
 
-[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) response headers for the SPA can be managed in the OAuth proxy.\
-This can be configured separately per API and keeps cookie concerns out of the API code:
+Cross origin permissions for the SPA can be configured per API within the OAuth proxy.\
+See the [Mozilla CORS Documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for details on standard behavior:
 
 - CORS headers are only returned if the browser request's `origin` header is trusted
 - The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header allows the SPA's web origin to call the API
 - To allow the browser to send cookies, the [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header is returned
 - Wildcards are then not allowed in other CORS response headers, such as [access-control-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
 - The [access-control-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) property is used to reduce the number of subsequent pre-flight requests
+
+If required, such as for finer control of CORS responses per API endpoint, you can set `cors_enabled=false`.\
+You will then need to implement CORS for your API technology stack.
 
 ## Deployment and Testing
 
