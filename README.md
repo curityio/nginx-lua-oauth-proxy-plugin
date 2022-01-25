@@ -52,7 +52,7 @@ See the [Mozilla CORS Documentation](https://developer.mozilla.org/en-US/docs/We
 - CORS headers are only returned if the browser request's `origin` header is trusted
 - The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header allows the SPA's web origin to call the API
 - The [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header allows the SPA to send secure cookies to the API
-- When sending cookies, wildcards are not allowed in other CORS response headers, such as [access-control-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
+- Use of secure cookies means wildcards cannot be used in other CORS response headers, eg [access-control-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
 - The [access-control-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) property is used to reduce the number of subsequent pre-flight requests
 
 If required, such as for finer control of CORS responses per API endpoint, you can set `cors_enabled=false`.\
