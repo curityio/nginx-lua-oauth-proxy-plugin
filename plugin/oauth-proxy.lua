@@ -137,12 +137,15 @@ end
 --
 function _M.run(config)
 
+    ngx.log(ngx.WARN, '*** OAUTH PROXY: START')
+
     -- Pre-flight requests cannot contain cookies, so add CORS headers and return
     local method = ngx.req.get_method():upper()
     if method == 'OPTIONS' then
         if config.cors_enabled then
             add_cors_response_headers(config)
         end
+        ngx.log(ngx.WARN, '*** OAUTH PROXY: RETURNING FOR OPTIONS')
         return
     end
 
@@ -203,8 +206,11 @@ function _M.run(config)
 
     -- CORS headers must also be added for the main API request
     if config.cors_enabled then
+        ngx.log(ngx.WARN, '*** OAUTH PROXY: ADDING CORS HEADERS FOR GET')
         add_cors_response_headers(config)
     end
+
+    ngx.log(ngx.WARN, '*** OAUTH PROXY: END')
 end
 
 return _M
