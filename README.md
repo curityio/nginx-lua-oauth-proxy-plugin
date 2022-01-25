@@ -43,7 +43,7 @@ The plugin is configured with the following properties and decrypts AES256 encry
 | cors_exposed_headers | No | Empty List | The HTTP response headers the SPA's Javascript is allowed to read from the API |
 | cors_max_age | No | Not written | The time to live until the next HTTP OPTIONS request to an API endpoint |
 | allow_tokens | No | false | If set to true, then requests with a bearer token are passed straight through to APIs |
-| remove_cookies | No | true | If set to true, then cookies are removed before forwarding requests to the API |
+| remove_cookies | No | true | If set to true, then cookies are removed before forwarding requests to APIs |
 
 ## Cross Origin Resource Sharing (CORS)
 
