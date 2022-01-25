@@ -205,6 +205,9 @@ function _M.run(config)
     if config.cors_enabled then
         add_cors_response_headers(config)
     end
+
+    -- Forward the access token to the next plugin or the target API
+    ngx.req.set_header("authorization", "Bearer " .. access_token)
 end
 
 return _M
