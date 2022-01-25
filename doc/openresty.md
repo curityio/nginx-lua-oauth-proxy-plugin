@@ -25,6 +25,7 @@ rewrite_by_lua_block {
             'DELETE'
         },
         cors_allowed_headers = {
+            'x-example-csrf'
         },
         cors_exposed_headers = {
         },

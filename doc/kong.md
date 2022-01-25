@@ -18,7 +18,8 @@ plugins:
       cors_allowed_methods:
       - 'GET'
       - 'POST'
-      cors_allowed_headers: []
+      cors_allowed_headers:
+      - x-example-csrf
       cors_exposed_headers: []
       cors_max_age: 86400
 ```
