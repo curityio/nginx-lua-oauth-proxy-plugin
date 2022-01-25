@@ -10,10 +10,17 @@ The `deploy/kong/kong.yml` file configures the plugin with these details for tes
 plugins:
   - name: oauth-proxy
     config:
-      encryption_key: 4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50
       cookie_name_prefix: example
+      encryption_key: 4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50
       trusted_web_origins:
       - http://www.example.com
+      cors_enabled: true
+      cors_allowed_methods:
+      - 'GET'
+      - 'POST'
+      cors_allowed_headers: []
+      cors_exposed_headers: []
+      cors_max_age: 86400
 ```
 
 ## Deploy the System
@@ -21,8 +28,8 @@ plugins:
 Run these commands to deploy a small Docker Compose system containing Kong Open Source, a tiny API and the plugin:
 
 ```bash
-cd test
-./deploy.sh
+cd deploy
+./deploy.sh kong
 ```
 
 Then connect to the API at http://localhost:3000, which will initially return an unauthorized error:

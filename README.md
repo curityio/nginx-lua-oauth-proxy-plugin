@@ -26,26 +26,33 @@ The plugin can be used standalone, or in conjunction with the [Phantom Token Plu
 See also the following resources:
 
 - The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to this plugin.
-- The [OAuth Agent API](https://github.com/curityio/bff-node-express), which issues the secure cookies for the SPA.
+- The [OAuth Agent API](https://github.com/curityio/token-handler-node-express), which issues the secure cookies for the SPA.
 
 ## Configuration
 
 The plugin is configured with the following properties and decrypts AES256 encrypted cookies:
 
-| Property | Description |
-| -------- | ----------- |
-| Encryption Key | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
-| Cookie Name Prefix | The prefix used in the SPA's cookie name, typically representing a company or product |
-| Trusted Web Origins | The web origins from which the plugin will accept cookie requests |
+| Property | Required? | Description |
+| -------- | --------- | ----------- |
+| cookie_name_prefix | Yes | The prefix used in the SPA's cookie name, typically representing a company or product |
+| encryption_key | Yes | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
+| allow_tokens | Yes | If set to true, then requests with a bearer token are passed straight through to APIs |
+| trusted_web_origins | Yes | The web origins from which the plugin will accept cookie requests |
+| cors_enabled | Yes | If set to true, then the OAuth Proxy will provide a default CORS implementation |
+| cors_allowed_methods | No | The HTTP methods allowed when the SPA calls an API endpoint |
+| cors_allowed_headers | No | The HTTP request headers the SPA is allowed to send to the API |
+| cors_exposed_headers | No | The HTTP response headers the SPA is allowed to read from the API |
+| cors_max_age | No | The time until the next HTTP OPTIONS request  |
 
-## Defining Routes
+## Cross Origin Resource Sharing
 
-The plugin allows you to configure reverse proxy routes the same for web and mobile clients of your APIs:
+[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) response headers can be configured for SPAs in the OAuth proxy.\
+This prevents the need to deal with cookie concerns in APIs, and provides the following behavior for each API endpoint:
 
-| Client Type | Routing Behavior |
-| ----------- | ---------------- |
-| SPA | No authorization header is sent, and one is calculated from secure cookies received |
-| Mobile | If an authorization header is received, it is passed straight through to the API |
+- CORS headers are only returned if the browser request's `origin` header is trusted
+- To instruct the browser to send cookies, the proxy returns the [Access-Control-Allow-Credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header
+- Wildcards are then not allowed in other CORS response headers, so they must be configured explicitly
+- The max age property is then used to reduce the number of subsequent pre-flight requests
 
 ## Deployment and Testing
 

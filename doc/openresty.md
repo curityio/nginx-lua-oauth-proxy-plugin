@@ -11,11 +11,24 @@ The `deploy/openresty/nginx.conf` file configures the plugin with these details 
 rewrite_by_lua_block {
 
     local config = {
-        encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
         cookie_name_prefix = 'example',
+        encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
+        allow_tokens = true,
         trusted_web_origins = {
             'http://www.example.com'
-        }
+        },
+        cors_enabled = true,
+        cors_allowed_methods = {
+            'GET',
+            'POST',
+            'PUT',
+            'DELETE'
+        },
+        cors_allowed_headers = {
+        },
+        cors_exposed_headers = {
+        },
+        cors_max_age = 86400
     }
 
     local oauthProxy = require 'oauth-proxy'
@@ -28,8 +41,8 @@ rewrite_by_lua_block {
 Run these commands to deploy a small Docker Compose system containing OpenResty, a tiny API and the plugin:
 
 ```bash
-cd test
-./deploy.sh
+cd deploy
+./deploy.sh openresty
 ```
 
 Then connect to the API at http://localhost:3000, which will initially return an unauthorized error:

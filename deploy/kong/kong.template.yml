@@ -12,8 +12,14 @@ services:
   plugins:
   - name: oauth-proxy
     config:
-      encryption_key: $ENCRYPTION_KEY
       cookie_name_prefix: example
+      encryption_key: $ENCRYPTION_KEY
       trusted_web_origins:
       - http://www.example.com
-  
+      cors_enabled: true
+      cors_allowed_methods:
+      - 'GET'
+      - 'POST'
+      cors_allowed_headers: []
+      cors_exposed_headers: []
+      cors_max_age: 86400
