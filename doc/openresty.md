@@ -24,6 +24,8 @@ rewrite_by_lua_block {
             'POST',
         },
         cors_allowed_headers = {
+            'accept',
+            'content-type'
         },
         cors_exposed_headers = {
         },
