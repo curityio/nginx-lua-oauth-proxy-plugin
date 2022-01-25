@@ -16,9 +16,13 @@ plugins:
       - http://www.example.com
       cors_enabled: true
       cors_allowed_methods:
+      - 'OPTIONS'
       - 'GET'
       - 'POST'
       cors_allowed_headers:
+      - accept
+      - content-type
+      - cookie
       - x-example-csrf
       cors_exposed_headers: []
       cors_max_age: 86400

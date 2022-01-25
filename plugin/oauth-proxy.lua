@@ -30,21 +30,21 @@ local function add_cors_response_headers(config)
             if config.cors_enabled then
 
                 if config.cors_allowed_methods then
-                    local allowedMethods = table.concat(config.cors_allowed_methods, ', ')
+                    local allowedMethods = table.concat(config.cors_allowed_methods, ',')
                     if allowedMethods then
                         ngx.header['access-control-allow-methods'] = allowedMethods
                     end
                 end
 
                 if config.cors_allowed_headers then
-                    local allowedHeaders = table.concat(config.cors_allowed_headers, ', ')
+                    local allowedHeaders = table.concat(config.cors_allowed_headers, ',')
                     if allowedHeaders then
                         ngx.header['access-control-allow-headers'] = allowedHeaders
                     end
                 end
 
                 if config.cors_exposed_headers then
-                    local exposedHeaders = table.concat(config.cors_exposed_headers, ', ')
+                    local exposedHeaders = table.concat(config.cors_exposed_headers, ',')
                     if exposedHeaders then
                         ngx.header['access-control-expose-headers'] = exposedHeaders
                     end

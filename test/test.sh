@@ -8,7 +8,7 @@
 API_URL='http://localhost:3000'
 WEB_ORIGIN='http://www.example.com'
 ACCESS_TOKEN='42665300-efe8-419d-be52-07b53e208f46'
-CSRF_TOKEN='abc'
+CSRF_TOKEN='njowdfew098723rhjl'
 RESPONSE_FILE=response.txt
 ENCRYPTED_ACCESS_TOKEN=$(node utils/encrypt.js "$ACCESS_TOKEN")
 ENCRYPTED_CSRF_TOKEN=$(node utils/encrypt.js "$CSRF_TOKEN")
@@ -78,7 +78,7 @@ if [ "$CREDENTIALS" != 'true' ]; then
 fi
 
 METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'GET, POST' ]; then
+if [ "$METHODS" != 'OPTIONS,GET,POST' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi
@@ -141,7 +141,7 @@ if [ "$CREDENTIALS" != 'true' ]; then
 fi
 
 METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'GET, POST' ]; then
+if [ "$METHODS" != 'OPTIONS,GET,POST' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi
