@@ -50,6 +50,7 @@ The plugin is configured with the following properties and decrypts AES256 encry
 This keeps cookie concerns out of APIs, and provides the following behavior for each API endpoint:
 
 - CORS headers are only returned if the browser request's `origin` header is trusted
+- The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header allows the SPA's web origin to call the API
 - To allow the browser to send cookies, the [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header is returned
 - Wildcards are then not allowed in other CORS response headers, such as [access-control-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
 - The [access-control-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) property is used to reduce the number of subsequent pre-flight requests
