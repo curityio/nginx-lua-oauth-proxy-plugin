@@ -80,18 +80,15 @@ Or run Kong and the plugin, with a configuration that toutes to a minimal REST A
 ./docker/deploy.sh kong
 ```
 
-Call the API at http://localhost:3000, which will initially return an unauthorized error.
+Call the API at http://localhost:3000, which will initially return an unauthorized error.\
+The gateway logs are visible in the terminal window for troubleshooting.
 
 ## Run HTTP Tests
 
-```bash
-./docker/test.sh
-```
-
-Next run some curl based tests to verify that the API correctly receives an access token:
+Next run some curl based tests in another terminal window:
 
 ```bash
 ./docker/test.sh
 ```
 
-To troubleshoot failures, see the `docker/response.txt` file to see the last gateway response.
+To troubleshoot failures, see the `docker/response.txt` file and the gateway logs.
