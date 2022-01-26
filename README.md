@@ -12,7 +12,7 @@ The [Token Handler Pattern](https://curity.io/resources/learn/the-token-handler-
 The SPA uses only SameSite encrypted HTTP Only cookies in the browser, and sends them during API requests.\
 This plugin performs the role of an `OAuth Proxy` in this solution, to make API calls work seamlessly:
 
-![Logical Components](/doc/logical-components.png)
+![Logical Components](/images/logical-components.png)
 
 The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
 See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
@@ -21,7 +21,7 @@ See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service
 
 The plugin can be used standalone, or in conjunction with the [Phantom Token Plugin](https://curity.io/resources/learn/phantom-token-pattern/):
 
-![API Flow](/doc/api-flow.png)
+![API Flow](/images/api-flow.png)
 
 See also the following resources:
 
