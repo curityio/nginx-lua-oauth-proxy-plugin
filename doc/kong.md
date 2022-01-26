@@ -15,16 +15,6 @@ plugins:
       trusted_web_origins:
       - http://www.example.com
       cors_enabled: true
-      cors_allowed_methods:
-      - 'OPTIONS'
-      - 'GET'
-      - 'POST'
-      cors_allowed_headers:
-      - 'x-example-csrf'
-      cors_exposed_headers: []
-      cors_max_age: 86400
-      allow_tokens: true
-      remove_cookie_headers: true
 ```
 
 ## Deploy the System

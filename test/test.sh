@@ -10,8 +10,8 @@ WEB_ORIGIN='http://www.example.com'
 ACCESS_TOKEN='42665300-efe8-419d-be52-07b53e208f46'
 CSRF_TOKEN='njowdfew098723rhjl'
 RESPONSE_FILE=response.txt
-ENCRYPTED_ACCESS_TOKEN=$(node utils/encrypt.js "$ACCESS_TOKEN")
-ENCRYPTED_CSRF_TOKEN=$(node utils/encrypt.js "$CSRF_TOKEN")
+ENCRYPTED_ACCESS_TOKEN=$(node encrypt.js "$ACCESS_TOKEN")
+ENCRYPTED_CSRF_TOKEN=$(node encrypt.js "$CSRF_TOKEN")
 
 #
 # Ensure that we are in the folder containing this script
@@ -78,7 +78,13 @@ if [ "$CREDENTIALS" != 'true' ]; then
 fi
 
 METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'OPTIONS,GET,POST' ]; then
+if [ "$METHODS" != 'OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE' ]; then
+  echo '*** The CORS access-control-allow-methods response header was not set correctly'
+  exit
+fi
+
+HEADERS=$(getHeaderValue 'access-control-allow-headers')
+if [ "$HEADERS" != 'x-example-csrf' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi
@@ -137,6 +143,12 @@ fi
 CREDENTIALS=$(getHeaderValue 'access-control-allow-credentials')
 if [ "$CREDENTIALS" != 'true' ]; then
   echo '*** The CORS access-control-allow-credentials response header was not set correctly'
+  exit
+fi
+
+HEADERS=$(getHeaderValue 'access-control-allow-headers')
+if [ "$HEADERS" != 'x-example-csrf' ]; then
+  echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi
 

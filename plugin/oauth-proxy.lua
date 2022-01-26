@@ -17,6 +17,46 @@ local function array_has_value(arr, val)
     return false
 end
 
+local function from_hex(str)
+    return (str:gsub('..', function (cc)
+        return string.char(tonumber(cc, 16))
+    end))
+end
+
+local function get_csrf_header_name(config)
+    return 'x-' .. config.cookie_name_prefix .. '-csrf'
+end
+
+local function apply_configuration_defaults(config)
+
+    if not config.allow_tokens then
+        config.allow_tokens = false
+    end
+
+    if not config.remove_cookie_headers then
+        config.remove_cookie_headers = true
+    end
+
+    if config.cors_enabled then
+
+        if not config.cors_allowed_methods then
+            config.cors_allowed_methods = { 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
+        end
+
+        if not config.cors_allowed_headers then
+            config.cors_allowed_headers = { get_csrf_header_name(config) }
+        end
+
+        if not config.cors_exposed_headers then
+            config.cors_exposed_headers = {}
+        end
+
+        if not config.cors_max_age then
+            config.cors_max_age = 86400
+        end
+    end
+end
+
 local function add_cors_response_headers(config)
 
     if config.trusted_web_origins then
@@ -87,21 +127,6 @@ local function unauthorized_request_error_response(config)
     error_response(ngx.HTTP_UNAUTHORIZED, 'unauthorized', 'Access denied due to missing or invalid credentials', config)
 end
 
-local function split(inputstr, sep)
-    local result={}
-    for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
-        table.insert(result, str)
-    end
-
-    return result
-end
-
-local function from_hex(str)
-    return (str:gsub('..', function (cc)
-        return string.char(tonumber(cc, 16))
-    end))
-end
-
 local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
 
     local all_bytes, err = base64.decode_base64url(encrypted_cookie)
@@ -148,6 +173,8 @@ end
 --
 function _M.run(config)
 
+    apply_configuration_defaults(config)
+
     -- Pre-flight requests cannot contain cookies, so add CORS headers and return
     local method = ngx.req.get_method():upper()
     if method == 'OPTIONS' then
@@ -177,7 +204,6 @@ function _M.run(config)
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
-    local csrf_header_name = nil
     if method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH' then
 
         local csrf_cookie_name = 'cookie_' .. config.cookie_name_prefix .. '-csrf'
@@ -192,9 +218,8 @@ function _M.run(config)
             ngx.log(ngx.WARN, 'Error decrypting CSRF cookie')
             unauthorized_request_error_response(config)
         end
-
-        csrf_header_name = 'x-' .. config.cookie_name_prefix .. '-csrf'
-        local csrf_header = ngx.req.get_headers()[csrf_header_name]
+        
+        local csrf_header = ngx.req.get_headers()[get_csrf_header_name(config)]
         if not csrf_header or csrf_header ~= csrf_token  then
             ngx.log(ngx.WARN, 'Invalid or missing CSRF request header')
             unauthorized_request_error_response(config)
@@ -223,7 +248,7 @@ function _M.run(config)
     if config.remove_cookie_headers then
         ngx.req.clear_header('cookie')
         if csrf_header_name then
-            ngx.req.clear_header(csrf_header_name)
+            ngx.req.clear_header(get_csrf_header_name(config))
         end
     end
 
