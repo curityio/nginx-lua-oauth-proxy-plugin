@@ -13,7 +13,6 @@ rewrite_by_lua_block {
     local config = {
         cookie_name_prefix = 'example',
         encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
-        allow_tokens = true,
         trusted_web_origins = {
             'http://www.example.com'
         },
@@ -28,7 +27,9 @@ rewrite_by_lua_block {
         },
         cors_exposed_headers = {
         },
-        cors_max_age = 86400
+        cors_max_age = 86400,
+        allow_tokens = true,
+        remove_cookie_headers = true
     }
 
     local oauthProxy = require 'oauth-proxy'

@@ -23,6 +23,8 @@ plugins:
       - 'x-example-csrf'
       cors_exposed_headers: []
       cors_max_age: 86400
+      allow_tokens: true
+      remove_cookie_headers: true
 ```
 
 ## Deploy the System

@@ -27,6 +27,10 @@ local function add_cors_response_headers(config)
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
 
+            if #config.trusted_web_origins > 1 then
+                ngx.header['vary'] = 'origin'
+            end
+
             if config.cors_enabled then
 
                 local method = ngx.req.get_method():upper()
@@ -155,9 +159,11 @@ function _M.run(config)
 
     -- If there is already a bearer token, eg for mobile clients, return immediately
     -- Note that the target API must always digitally verify the JWT access token
-    local auth_header = ngx.var.http_authorization
-    if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
-        return
+    if config.allow_tokens then
+        local auth_header = ngx.var.http_authorization
+        if auth_header and string.len(auth_header) > 7 and string.lower(string.sub(auth_header, 1, 7)) == 'bearer ' then
+            return
+        end
     end
 
     -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
@@ -171,6 +177,7 @@ function _M.run(config)
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
+    local csrf_header_name = nil
     if method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH' then
 
         local csrf_cookie_name = 'cookie_' .. config.cookie_name_prefix .. '-csrf'
@@ -186,7 +193,8 @@ function _M.run(config)
             unauthorized_request_error_response(config)
         end
 
-        local csrf_header = ngx.req.get_headers()['x-' .. config.cookie_name_prefix .. '-csrf']
+        csrf_header_name = 'x-' .. config.cookie_name_prefix .. '-csrf'
+        local csrf_header = ngx.req.get_headers()[csrf_header_name]
         if not csrf_header or csrf_header ~= csrf_token  then
             ngx.log(ngx.WARN, 'Invalid or missing CSRF request header')
             unauthorized_request_error_response(config)
@@ -208,13 +216,21 @@ function _M.run(config)
         unauthorized_request_error_response(config)
     end
 
+    -- Set the request header to supply the access token to the next plugin or the target API
+    ngx.req.set_header('authorization', 'Bearer ' .. access_token)
+
+    -- Clear headers of no interest to the target API
+    if config.remove_cookie_headers then
+        ngx.req.clear_header('cookie')
+        if csrf_header_name then
+            ngx.req.clear_header(csrf_header_name)
+        end
+    end
+
     -- CORS headers must also be added for the main API request
     if config.cors_enabled then
         add_cors_response_headers(config)
     end
-
-    -- Forward the access token to the next plugin or the target API
-    ngx.req.set_header('authorization', 'Bearer ' .. access_token)
 end
 
 return _M

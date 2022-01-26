@@ -109,7 +109,7 @@ This provides cleaner requests to APIs, which only receive a JWT in the HTTP Aut
 
 > **Syntax**: **`cors_allowed_methods`** `string[]`
 >
-> **Default**: *[]*
+> **Default**: *[OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']*
 >
 > **Context**: `location`
 
@@ -122,7 +122,7 @@ A '*' wildcard value should not be configured here, since it will not work with 
 
 > **Syntax**: **`cors_allowed_headers`** `string[]`
 >
-> **Default**: *[]*
+> **Default**: *['x-example-csrf']*
 >
 > **Context**: `location`
 
@@ -149,7 +149,7 @@ A '*' wildcard value should not be configured here, since it will not work with 
 
 > **Syntax**: **`cors_max_age`** `number`
 >
-> **Default**: **
+> **Default**: *86400*
 >
 > **Context**: `location`
 
