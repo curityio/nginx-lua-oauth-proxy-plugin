@@ -189,8 +189,7 @@ access-control-allow-headers: x-example-csrf
 access-control-max-age: 86400
 ```
 
-The above configuration expands as follows, and you can customize this further if needed.\
-Alternatively, for finer control per API endpoint, use `cors_enabled=false` and handle CORS in your API.
+The above configuration expands as follows, and you can customize this further if needed:
 
 ```text
 local config = {
@@ -214,7 +213,7 @@ local config = {
 }
 ```
 
-Or in 
+Or in Kong this would be configured like this:
 
 ```yaml
 plugins:
@@ -239,6 +238,8 @@ plugins:
       - x-example-csrf
       cors_max_age: 86400
 ```
+
+If you prefer you can configure `cors_enabled=false`, in which case you'll need to handle CORS in your API.
 
 ## Development and Testing
 
