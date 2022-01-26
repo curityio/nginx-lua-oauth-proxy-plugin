@@ -1,3 +1,7 @@
+--
+-- The main plugin implementation that can run in an NGINX system with the LUA module enabled
+--
+
 local _M = { conf = {} }
 
 local base64 = require 'ngx.base64'

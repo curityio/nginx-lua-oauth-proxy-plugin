@@ -1,3 +1,7 @@
+--
+-- The Kong entry point handler
+--
+
 local BasePlugin = require "kong.plugins.base_plugin"
 local access = require "kong.plugins.oauth-proxy.access"
 

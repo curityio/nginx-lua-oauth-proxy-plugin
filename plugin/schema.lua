@@ -1,3 +1,7 @@
+--
+-- The Kong schema definition
+--
+
 return {
     name = "oauth-proxy",
     fields = {{

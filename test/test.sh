@@ -5,7 +5,7 @@
 # We therefore run some basic infrastructure tests against a deployed reverse proxy
 ##########################################################################################
 
-API_URL='http://api.example.com:3000'
+API_URL='http://localhost:3000'
 WEB_ORIGIN='http://www.example.com'
 ACCESS_TOKEN='42665300-efe8-419d-be52-07b53e208f46'
 CSRF_TOKEN='njowdfew098723rhjl'

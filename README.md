@@ -30,8 +30,7 @@ See also the following resources:
 
 ## Required Configuration Directives
 
-All of the directives are required for locations where the plugin is enabled.\
-The NGINX system will fail to load if the configuration for any locations fail validation:
+All of the settings in this section are required:
 
 #### cookie_name_prefix
 
@@ -75,11 +74,10 @@ Multiple origins could be used in special cases where cookies are shared across 
 >
 > **Context**: `location`
 
-When enabled, the OAuth proxy implements headers on behalf of the API, to keep CORS out of API code.\
+When enabled, the OAuth proxy returns CORS response headers on behalf of the API.\
 When an origin header is received that is in the trusted_web_origins whitelist, response headers are written.\
 The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) header is returned, so that the SPA can call the API.\
-The [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) header is returned, so that the SPA can send secured cookies to the API.\
-For more fine-grained control over CORS, this can be set to false and CORS can be implemented in the API instead.
+The [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) header is returned, so that the SPA can send secured cookies to the API.
 
 ## Optional Configuration Directives
 
@@ -109,12 +107,11 @@ This provides cleaner requests to APIs, which only receive a JWT in the HTTP Aut
 
 > **Syntax**: **`cors_allowed_methods`** `string[]`
 >
-> **Default**: *[OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']*
+> **Default**: *['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']*
 >
 > **Context**: `location`
 
 When CORS is enabled, these values are returned in the [access-control-allow-methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods) response header.\
-The same value is returned in OPTIONS responses for any API endpoint under the configured location.\
 The SPA is then allowed to call a particular API endpoint with those HTTP methods (eg GET, POST).\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
@@ -128,7 +125,6 @@ A '*' wildcard value should not be configured here, since it will not work with 
 
 When CORS is enabled, the plugin returns these values in the [access-contol-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers) response header.\
 Include here any additional [non-safelisted request headers](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header) that the SPA needs to send in API requests.\
-The same values are returned in responses for any API endpoint under the configured location.\
 To implement POST requests, the values configured should include the CSRF request header name, eg `x-example-csrf`.\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
@@ -142,7 +138,6 @@ A '*' wildcard value should not be configured here, since it will not work with 
 
 When CORS is enabled, the plugin returns these values in the [access-contol-expose-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers) response header.\
 Include here any additional [non-safelisted response headers](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_response_header) that the SPA needs to read from API responses.\
-The same values are returned in responses for any API endpoint under the configured location.\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
 #### cors_max_age
@@ -154,12 +149,61 @@ A '*' wildcard value should not be configured here, since it will not work with 
 > **Context**: `location`
 
 When CORS is enabled, the plugin returns this value in the [access-contol-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) response header.\
-When a value is configured, this prevents excessive pre-flight OPTIONS requests to improve efficiency.\
-The same value is returned in responses for any API endpoint under the configured location.\
+When a value is configured, this prevents excessive pre-flight OPTIONS requests to improve efficiency.
 
-## Deployment and Testing
+## CORS Settings
 
-The plugin can run in any NGINX based system with the LUA module enabled.
+Standard settings would be expressed similar to the following if expressed in an nginx configuration file:
+
+```text
+local config = {
+    cookie_name_prefix = 'example',
+    encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
+    trusted_web_origins = {
+        'http://www.example.com'
+    },
+    cors_enabled = true
+}
+```
+
+All API endpoints will then return these CORS headers to browsers in response headers:
+
+```text
+access-control-allow-origin: http://www.example.com
+access-control-allow-credentials: true
+access-control-allow-methods: OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE
+access-control-allow-headers: x-example-csrf
+access-control-max-age: 86400
+```
+
+The above configuration expands as follows, and you can customize this further if needed.\
+Alternatively, for finer control per API endpoint, use `cors_enabled=false` and handle CORS in your API.
+
+```text
+local config = {
+    cookie_name_prefix = 'example',
+    encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
+    trusted_web_origins = {
+        'http://www.example.com'
+    },
+    cors_enabled = true,
+    allow_tokens = false,
+    remove_cookie_headers = true,
+    cors_allowed_methods = {
+        'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'
+    },
+    cors_allowed_headers = {
+        'x-example-csrf'
+    },
+    cors_exposed_headers = {
+    },
+    cors_max_age = 86400
+}
+```
+
+## Development and Testing
+
+The plugin can run in any NGINX based system with the LUA module enabled.\
 See the [NGINX LUA OAuth Proxy Plugin](https://curity.io/resources/learn/oauth-proxy-plugin-lua) tutorial for further details.
 
 - [Kong Open Source](/doc/kong.md)
