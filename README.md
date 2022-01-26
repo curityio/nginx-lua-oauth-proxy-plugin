@@ -151,7 +151,7 @@ A '*' wildcard value should not be configured here, since it will not work with 
 When CORS is enabled, the plugin returns this value in the [access-contol-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) response header.\
 When a value is configured, this prevents excessive pre-flight OPTIONS requests to improve efficiency.
 
-## CORS Settings
+## Example Configurations
 
 Standard settings would be expressed similar to the following if expressed in an nginx configuration file:
 
@@ -203,7 +203,6 @@ local config = {
 
 ## Development and Testing
 
-The plugin can run in any NGINX based system with the LUA module enabled.\
 See the [NGINX LUA OAuth Proxy Plugin](https://curity.io/resources/learn/oauth-proxy-plugin-lua) tutorial for further details.
 
 - [Kong Open Source](/doc/kong.md)
