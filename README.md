@@ -155,7 +155,7 @@ When a value is configured, this prevents excessive pre-flight OPTIONS requests 
 
 Standard settings would be expressed similar to the following if expressed in an nginx configuration file:
 
-```text
+```nginx
 local config = {
     cookie_name_prefix = 'example',
     encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
@@ -164,6 +164,19 @@ local config = {
     },
     cors_enabled = true
 }
+```
+
+The equivalent Kong configuration is expressed via YAML when using declarative configuration:
+
+```yaml
+plugins:
+  - name: oauth-proxy
+    config:
+      cookie_name_prefix: example
+      encryption_key: 4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50
+      trusted_web_origins:
+      - http://www.example.com
+      cors_enabled: true
 ```
 
 All API endpoints will then return these CORS headers to browsers in response headers:
@@ -201,12 +214,38 @@ local config = {
 }
 ```
 
+Or in 
+
+```yaml
+plugins:
+  - name: oauth-proxy
+    config:
+      cookie_name_prefix: example
+      encryption_key: 4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50
+      trusted_web_origins:
+      - http://www.example.com
+      cors_enabled: true
+      allow_tokens: false
+      remove_cookie_headers: true
+      cors_allowed_methods:
+      - OPTIONS
+      - GET
+      - HEAD
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      cors_allowed_headers:
+      - x-example-csrf
+      cors_max_age: 86400
+```
+
 ## Development and Testing
 
-See the [NGINX LUA OAuth Proxy Plugin](https://curity.io/resources/learn/oauth-proxy-plugin-lua) tutorial for further details.
+The following resources provide further details on how to make code changes to this repo:
 
-- [Kong Open Source](/doc/kong.md)
-- [OpenResty](/doc/openresty.md)
+- [Website Tutorial](https://curity.io/resources/learn/oauth-proxy-plugin-lua)
+- [Wiki](/wiki/wiki.md)
 
 ## More Information
 

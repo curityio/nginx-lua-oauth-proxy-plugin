@@ -10,13 +10,18 @@ WEB_ORIGIN='http://www.example.com'
 ACCESS_TOKEN='42665300-efe8-419d-be52-07b53e208f46'
 CSRF_TOKEN='njowdfew098723rhjl'
 RESPONSE_FILE=response.txt
-ENCRYPTED_ACCESS_TOKEN=$(node encrypt.js "$ACCESS_TOKEN")
-ENCRYPTED_CSRF_TOKEN=$(node encrypt.js "$CSRF_TOKEN")
 
 #
 # Ensure that we are in the folder containing this script
 #
 cd "$(dirname "${BASH_SOURCE[0]}")"
+ENCRYPT_UTIL=$(pwd)/encrypt.js
+
+#
+# Get encrypted values for testing
+#
+ENCRYPTED_ACCESS_TOKEN=$(node $ENCRYPT_UTIL "$ACCESS_TOKEN")
+ENCRYPTED_CSRF_TOKEN=$(node $ENCRYPT_UTIL "$CSRF_TOKEN")
 
 #
 # Get a header value from the HTTP response file
