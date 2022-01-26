@@ -236,10 +236,16 @@ plugins:
       - DELETE
       cors_allowed_headers:
       - x-example-csrf
+      cors_exposed_headers: []
       cors_max_age: 86400
 ```
 
 If you prefer you can configure `cors_enabled=false`, in which case you'll need to handle CORS in your API.
+
+## Deployment
+
+The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty and Kong deployment examples.\
+The LUA files are simply copied to the deployed system's LUA plugins folder.
 
 ## Development and Testing
 
