@@ -3,7 +3,7 @@
 The information here is mostly of interest to Curity developers who code the plugin.\
 If you are interested in extending the plugin, the same instructions can be followed.
 
-## Run Unit Tests
+## Prerequisites
 
 First install OpenResty and the Perl test framework as prerequisites:
 
@@ -12,10 +12,20 @@ brew install openresty/brew/openresty
 cpan Test::Nginx
 ```
 
-This will make the `prove` utility available, after which tests can be run.\
-Run this command to execute all tests in the `t` folder:
+Then add a path of this form to the PATH in `.zprofile`.\
+This will ensure that the first nginx command in the PATH has LUA support.
+
+```text
+/usr/local/Cellar/openresty/1.19.9.1_2/nginx/sbin
+```
+
+## Run Unit Tests
+
+Whenever the plugin code changes, copy the latest plugin to the `lualib` folder.\
+The `prove` utility can then be run to execute tests in the project's `t` folder:
 
 ```bash
+cp plugin/plugin.lua /usr/local/Cellar/openresty/1.19.9.1_2/lualib/oauth-proxy.lua
 prove -v
 ```
 
@@ -26,11 +36,20 @@ Tests that are expected to succeed use proxy_pass to route to a target that runs
 
 ```nginx
 location /t {
-    oauth_proxy on;
-    oauth_proxy_allow_tokens off;
-    oauth_proxy_cookie_prefix "mycompany-myproduct";
-    oauth_proxy_hex_encryption_key "4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50";
-    oauth_proxy_trusted_web_origin "https://www.example.com";
+    rewrite_by_lua_block {
+
+        local config = {
+            encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
+            cookie_name_prefix = 'example',
+            trusted_web_origins = {
+                'http://www.example.com'
+            },
+            cors_enabled = true
+        }
+
+        local oauthProxy = require 'oauth-proxy'
+        oauthProxy.run(config)
+    }
     
     proxy_pass http://localhost:1984/target;
 }

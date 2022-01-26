@@ -238,6 +238,9 @@ function _M.run(config)
         unauthorized_request_error_response(config)
     end
 
+    ngx.log(ngx.WARN, "*** DEBUG")
+    ngx.log(ngx.WARN, at_cookie)
+
     -- Decrypt the access token cookie, which is encrypted using AES256
     local access_token = decrypt_cookie(at_cookie, config.encryption_key)
     if not access_token then
