@@ -28,34 +28,134 @@ See also the following resources:
 - The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to this plugin.
 - The [OAuth Agent API](https://github.com/curityio/token-handler-node-express), which issues the secure cookies for the SPA.
 
-## Configuration
+## Required Configuration Directives
 
-The plugin is configured with the following properties and decrypts AES256 encrypted cookies:
+All of the directives are required for locations where the plugin is enabled.\
+The NGINX system will fail to load if the configuration for any locations fail validation:
 
-| Property | Required? | Default Value | Description |
-| -------- | --------- | ------------- | ----------- |
-| cookie_name_prefix | Yes | N/A | The prefix used in the SPA's cookie name, typically representing a company or product |
-| encryption_key | Yes | N/A | The encryption key used by the plugin to decrypt AES256 encrypted SameSite cookies |
-| trusted_web_origins | Yes | Empty List | The web origins from which the plugin will accept cookie requests |
-| cors_enabled | Yes | true | If set to true, then the OAuth Proxy will provide a default CORS implementation |
-| cors_allowed_methods | No | Empty List | The HTTP methods allowed when the SPA calls an API endpoint |
-| cors_allowed_headers | No | Empty List | The HTTP request headers the SPA is allowed to send to the API |
-| cors_exposed_headers | No | Empty List | The HTTP response headers the SPA's Javascript is allowed to read from the API |
-| cors_max_age | No | Not written | The time to live until the next HTTP OPTIONS request to an API endpoint |
-| allow_tokens | No | false | If set to true, then requests with a bearer token are passed straight through to APIs |
-| remove_cookies | No | true | If set to true, then cookies are removed before forwarding requests to APIs |
+#### cookie_name_prefix
 
-## Cross Origin Resource Sharing (CORS)
+> **Syntax**: **`cookie_name_prefix`** `string`
+>
+> **Default**: *``*
+>
+> **Context**: `location`
 
-Cross origin permissions for the SPA can be configured per API within the OAuth proxy.\
-See the [Mozilla CORS Documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for details on standard behavior:
+The prefix used in the SPA's cookie name, typically representing a company or product name.\
+The value supplied must not be empty, and `example` would lead to full cookie names such as `cookie-at`.
 
-- CORS headers are only written if the browser sends a trusted value in the `origin` header
-- The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header allows the SPA's web origin to call the API
-- The [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) response header allows the SPA to send secure cookies to the API
+#### encryption_key
 
-If required, such as for finer control of CORS responses per API endpoint, you can set `cors_enabled=false`.\
-You will then need to implement CORS within your API technology stack.
+> **Syntax**: **`encryption_key`** `string`
+>
+> **Default**: *``*
+>
+> **Context**: `location`
+
+This must be a 32 byte encryption key expressed as 64 hex characters.\
+It is used to decrypt AES256 encrypted secure cookies.\
+The key is initially generated with a tool such as `openssl`, as explained in Curity tutorials.
+
+#### trusted_web_origins
+
+> **Syntax**: **`trusted_web_origins`** `string[]`
+>
+> **Default**: *[]*
+>
+> **Context**: `location`
+
+A whitelist of at least one web origin from which the plugin will accept requests.\
+Multiple origins could be used in special cases where cookies are shared across subdomains.
+
+#### cors_enabled
+
+> **Syntax**: **`cors_enabled`** `boolean`
+>
+> **Default**: *true*
+>
+> **Context**: `location`
+
+When enabled, the OAuth proxy implements headers on behalf of the API, to keep CORS out of API code.\
+When an origin header is received that is in the trusted_web_origins whitelist, response headers are written.\
+The [access-control-allow-origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) header is returned, so that the SPA can call the API.\
+The [access-control-allow-credentials](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials) header is returned, so that the SPA can send secured cookies to the API.\
+For more fine-grained control over CORS, this can be set to false and CORS can be implemented in the API instead.
+
+## Optional Configuration Directives
+
+#### allow_tokens
+
+> **Syntax**: **`allow_tokens`** `boolean`
+>
+> **Default**: *false*
+>
+> **Context**: `location`
+
+If set to true, then requests that already have a bearer token are passed straight through to APIs.\
+This can be useful when web and mobile clients share the same API routes.
+
+#### remove_cookie_headers
+
+> **Syntax**: **`remove_cookie_headers`** `boolean`
+>
+> **Default**: *true*
+>
+> **Context**: `location`
+
+If set to true, then cookie and CSRF headers are not forwarded to APIs.\
+This provides cleaner requests to APIs, which only receive a JWT in the HTTP Authorization header.
+
+#### cors_allowed_methods
+
+> **Syntax**: **`cors_allowed_methods`** `string[]`
+>
+> **Default**: *[]*
+>
+> **Context**: `location`
+
+When CORS is enabled, these values are returned in the [access-control-allow-methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods) response header.\
+The same value is returned in OPTIONS responses for any API endpoint under the configured location.\
+The SPA is then allowed to call a particular API endpoint with those HTTP methods (eg GET, POST).\
+A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
+
+#### cors_allowed_headers
+
+> **Syntax**: **`cors_allowed_headers`** `string[]`
+>
+> **Default**: *[]*
+>
+> **Context**: `location`
+
+When CORS is enabled, the plugin returns these values in the [access-contol-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers) response header.\
+Include here any additional [non-safelisted request headers](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header) that the SPA needs to send in API requests.\
+The same values are returned in responses for any API endpoint under the configured location.\
+To implement POST requests, the values configured should include the CSRF request header name, eg `x-example-csrf`.\
+A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
+
+#### cors_exposed_headers
+
+> **Syntax**: **`cors_exposed_headers`** `string[]`
+>
+> **Default**: *[]*
+>
+> **Context**: `location`
+
+When CORS is enabled, the plugin returns these values in the [access-contol-expose-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers) response header.\
+Include here any additional [non-safelisted response headers](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_response_header) that the SPA needs to read from API responses.\
+The same values are returned in responses for any API endpoint under the configured location.\
+A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
+
+#### cors_max_age
+
+> **Syntax**: **`cors_max_age`** `number`
+>
+> **Default**: **
+>
+> **Context**: `location`
+
+When CORS is enabled, the plugin returns this value in the [access-contol-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) response header.\
+This prevents excessive pre-flight OPTIONS requests to improve efficiency.\
+The same value is returned in responses for any API endpoint under the configured location.\
 
 ## Deployment and Testing
 
