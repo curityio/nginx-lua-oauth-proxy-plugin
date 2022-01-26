@@ -154,7 +154,7 @@ A '*' wildcard value should not be configured here, since it will not work with 
 > **Context**: `location`
 
 When CORS is enabled, the plugin returns this value in the [access-contol-max-age](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age) response header.\
-This prevents excessive pre-flight OPTIONS requests to improve efficiency.\
+When a value is configured, this prevents excessive pre-flight OPTIONS requests to improve efficiency.\
 The same value is returned in responses for any API endpoint under the configured location.\
 
 ## Deployment and Testing
