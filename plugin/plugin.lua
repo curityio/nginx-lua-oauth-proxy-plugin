@@ -43,12 +43,12 @@ local function apply_configuration_defaults(config)
 
     if config.cors_enabled then
 
-        if not config.cors_allowed_methods then
-            config.cors_allowed_methods = { 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
+        if not config.cors_allow_methods then
+            config.cors_allow_methods = { 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
         end
 
-        if not config.cors_allowed_headers then
-            config.cors_allowed_headers = { get_csrf_header_name(config) }
+        if not config.cors_allow_headers then
+            config.cors_allow_headers = { get_csrf_header_name(config) }
         end
 
         if not config.cors_exposed_headers then
@@ -79,16 +79,16 @@ local function add_cors_response_headers(config)
 
                 local method = ngx.req.get_method():upper()
                 if method == 'OPTIONS' then
-                    if config.cors_allowed_methods then
-                        local allowedMethods = table.concat(config.cors_allowed_methods, ',')
+                    if config.cors_allow_methods then
+                        local allowedMethods = table.concat(config.cors_allow_methods, ',')
                         if allowedMethods then
                             ngx.header['access-control-allow-methods'] = allowedMethods
                         end
                     end
                 end
 
-                if config.cors_allowed_headers then
-                    local allowedHeaders = table.concat(config.cors_allowed_headers, ',')
+                if config.cors_allow_headers then
+                    local allowedHeaders = table.concat(config.cors_allow_headers, ',')
                     if allowedHeaders then
                         ngx.header['access-control-allow-headers'] = allowedHeaders
                     end
@@ -186,6 +186,7 @@ function _M.run(config)
             add_cors_response_headers(config)
         end
         ngx.exit(200)
+        return
     end
 
     -- If there is already a bearer token, eg for mobile clients, return immediately
@@ -204,6 +205,7 @@ function _M.run(config)
         if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
             ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
             unauthorized_request_error_response(config)
+            return
         end
     end
 
@@ -215,18 +217,21 @@ function _M.run(config)
         if not csrf_cookie then
             ngx.log(ngx.WARN, 'No CSRF cookie was sent with the request')
             unauthorized_request_error_response(config)
+            return
         end
 
         local csrf_token = decrypt_cookie(csrf_cookie, config.encryption_key)
         if not csrf_token then
             ngx.log(ngx.WARN, 'Error decrypting CSRF cookie')
             unauthorized_request_error_response(config)
+            return
         end
         
         local csrf_header = ngx.req.get_headers()[get_csrf_header_name(config)]
         if not csrf_header or csrf_header ~= csrf_token  then
             ngx.log(ngx.WARN, 'Invalid or missing CSRF request header')
             unauthorized_request_error_response(config)
+            return
         end
     end
 
@@ -236,16 +241,15 @@ function _M.run(config)
     if not at_cookie then
         ngx.log(ngx.WARN, 'No access token cookie was sent with the request')
         unauthorized_request_error_response(config)
+        return
     end
-
-    ngx.log(ngx.WARN, "*** DEBUG")
-    ngx.log(ngx.WARN, at_cookie)
 
     -- Decrypt the access token cookie, which is encrypted using AES256
     local access_token = decrypt_cookie(at_cookie, config.encryption_key)
     if not access_token then
         ngx.log(ngx.WARN, 'Error decrypting access token cookie')
         unauthorized_request_error_response(config)
+        return
     end
 
     -- Set the request header to supply the access token to the next plugin or the target API
@@ -254,8 +258,9 @@ function _M.run(config)
     -- Clear headers of no interest to the target API
     if config.remove_cookie_headers then
         ngx.req.clear_header('cookie')
+        local csrf_header_name = get_csrf_header_name(config)
         if csrf_header_name then
-            ngx.req.clear_header(get_csrf_header_name(config))
+            ngx.req.clear_header(csrf_header_name)
         end
     end
 

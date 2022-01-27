@@ -36,18 +36,14 @@ All of the settings in this section are required:
 
 > **Syntax**: **`cookie_name_prefix`** `string`
 >
-> **Default**: *``*
->
 > **Context**: `location`
 
 The prefix used in the SPA's cookie name, typically representing a company or product name.\
-The value supplied must not be empty, and `example` would lead to full cookie names such as `cookie-at`.
+The value supplied must not be empty, and `example` would lead to full cookie names such as `example-at`.
 
 #### encryption_key
 
 > **Syntax**: **`encryption_key`** `string`
->
-> **Default**: *``*
 >
 > **Context**: `location`
 
@@ -58,8 +54,6 @@ The key is initially generated with a tool such as `openssl`, as explained in Cu
 #### trusted_web_origins
 
 > **Syntax**: **`trusted_web_origins`** `string[]`
->
-> **Default**: *[]*
 >
 > **Context**: `location`
 
@@ -103,9 +97,9 @@ This can be useful when web and mobile clients share the same API routes.
 If set to true, then cookie and CSRF headers are not forwarded to APIs.\
 This provides cleaner requests to APIs, which only receive a JWT in the HTTP Authorization header.
 
-#### cors_allowed_methods
+#### cors_allow_methods
 
-> **Syntax**: **`cors_allowed_methods`** `string[]`
+> **Syntax**: **`cors_allow_methods`** `string[]`
 >
 > **Default**: *['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']*
 >
@@ -115,9 +109,9 @@ When CORS is enabled, these values are returned in the [access-control-allow-met
 The SPA is then allowed to call a particular API endpoint with those HTTP methods (eg GET, POST).\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
-#### cors_allowed_headers
+#### cors_allow_headers
 
-> **Syntax**: **`cors_allowed_headers`** `string[]`
+> **Syntax**: **`cors_allow_headers`** `string[]`
 >
 > **Default**: *['x-example-csrf']*
 >
@@ -125,7 +119,7 @@ A '*' wildcard value should not be configured here, since it will not work with 
 
 When CORS is enabled, the plugin returns these values in the [access-contol-allow-headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers) response header.\
 Include here any additional [non-safelisted request headers](https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header) that the SPA needs to send in API requests.\
-To implement POST requests, the values configured should include the CSRF request header name, eg `x-example-csrf`.\
+To implement data changing requests, include the CSRF request header name, eg `x-example-csrf`.\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
 #### cors_exposed_headers
@@ -201,10 +195,10 @@ local config = {
     cors_enabled = true,
     allow_tokens = false,
     remove_cookie_headers = true,
-    cors_allowed_methods = {
+    cors_allow_methods = {
         'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'
     },
-    cors_allowed_headers = {
+    cors_allow_headers = {
         'x-example-csrf'
     },
     cors_exposed_headers = {
@@ -226,7 +220,7 @@ plugins:
       cors_enabled: true
       allow_tokens: false
       remove_cookie_headers: true
-      cors_allowed_methods:
+      cors_allow_methods:
       - OPTIONS
       - GET
       - HEAD
@@ -234,7 +228,7 @@ plugins:
       - PUT
       - PATCH
       - DELETE
-      cors_allowed_headers:
+      cors_allow_headers:
       - x-example-csrf
       cors_exposed_headers: []
       cors_max_age: 86400
