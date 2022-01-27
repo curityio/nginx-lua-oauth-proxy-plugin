@@ -188,8 +188,8 @@ function _M.run(config)
     if method == 'OPTIONS' then
         if config.cors_enabled then
             add_cors_response_headers(config, false)
+            ngx.exit(200)
         end
-        ngx.exit(200)
         return
     end
 
