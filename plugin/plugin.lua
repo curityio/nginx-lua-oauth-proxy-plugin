@@ -33,78 +33,82 @@ end
 
 local function apply_configuration_defaults(config)
 
-    if not config.allow_tokens then
+    if config.trusted_web_origins == nil then
+        config.trusted_web_origins = {}
+    end
+    
+    if config.allow_tokens == nil then
         config.allow_tokens = false
     end
 
-    if not config.remove_cookie_headers then
+    if config.remove_cookie_headers == nil then
         config.remove_cookie_headers = true
     end
 
     if config.cors_enabled then
 
-        if not config.cors_allow_methods then
+        if config.cors_allow_methods == nil then
             config.cors_allow_methods = { 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
         end
 
-        if not config.cors_allow_headers then
+        if config.cors_allow_headers == nil then
             config.cors_allow_headers = { get_csrf_header_name(config) }
         end
 
-        if not config.cors_exposed_headers then
+        if config.cors_exposed_headers == nil then
             config.cors_exposed_headers = {}
         end
 
-        if not config.cors_max_age then
+        if config.cors_max_age == nil then
             config.cors_max_age = 86400
         end
     end
 end
 
-local function add_cors_response_headers(config)
+local function add_cors_response_headers(config, is_error)
 
-    if config.trusted_web_origins then
+    local origin = ngx.req.get_headers()['origin']
+    if origin and array_has_value(config.trusted_web_origins, origin) then
 
-        local origin = ngx.req.get_headers()['origin']
-        if origin and array_has_value(config.trusted_web_origins, origin) then
-            
+        if config.cors_enabled or is_error then
+
+            -- For plugin errors we always add these CORS headers, so that the SPA can read the error response body
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
-
             if #config.trusted_web_origins > 1 then
                 ngx.header['vary'] = 'origin'
             end
+        end
 
-            if config.cors_enabled then
+        if config.cors_enabled then
 
-                local method = ngx.req.get_method():upper()
-                if method == 'OPTIONS' then
-                    if config.cors_allow_methods then
-                        local allowedMethods = table.concat(config.cors_allow_methods, ',')
-                        if allowedMethods then
-                            ngx.header['access-control-allow-methods'] = allowedMethods
-                        end
+            local method = ngx.req.get_method():upper()
+            if method == 'OPTIONS' then
+                if config.cors_allow_methods then
+                    local allowedMethods = table.concat(config.cors_allow_methods, ',')
+                    if allowedMethods then
+                        ngx.header['access-control-allow-methods'] = allowedMethods
                     end
                 end
+            end
 
-                if config.cors_allow_headers then
-                    local allowedHeaders = table.concat(config.cors_allow_headers, ',')
-                    if allowedHeaders then
-                        ngx.header['access-control-allow-headers'] = allowedHeaders
-                    end
+            if config.cors_allow_headers then
+                local allowedHeaders = table.concat(config.cors_allow_headers, ',')
+                if allowedHeaders then
+                    ngx.header['access-control-allow-headers'] = allowedHeaders
                 end
+            end
 
-                if config.cors_exposed_headers then
-                    local exposedHeaders = table.concat(config.cors_exposed_headers, ',')
-                    if exposedHeaders then
-                        ngx.header['access-control-expose-headers'] = exposedHeaders
-                    end
+            if config.cors_exposed_headers then
+                local exposedHeaders = table.concat(config.cors_exposed_headers, ',')
+                if exposedHeaders then
+                    ngx.header['access-control-expose-headers'] = exposedHeaders
                 end
-                
-                if config.cors_max_age then
-                    if config.cors_max_age > 0 then
-                        ngx.header['access-control-max-age'] = config.cors_max_age
-                    end
+            end
+            
+            if config.cors_max_age then
+                if config.cors_max_age > 0 then
+                    ngx.header['access-control-max-age'] = config.cors_max_age
                 end
             end
         end
@@ -113,7 +117,7 @@ end
 
 local function error_response(status, code, message, config)
 
-    add_cors_response_headers(config)
+    add_cors_response_headers(config, true)
 
     local method = ngx.req.get_method():upper()
     if method ~= 'HEAD' then
@@ -183,7 +187,7 @@ function _M.run(config)
     local method = ngx.req.get_method():upper()
     if method == 'OPTIONS' then
         if config.cors_enabled then
-            add_cors_response_headers(config)
+            add_cors_response_headers(config, false)
         end
         ngx.exit(200)
         return
@@ -199,14 +203,11 @@ function _M.run(config)
     end
 
     -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
-    if config.trusted_web_origins then
-
-        local web_origin = ngx.req.get_headers()['origin']
-        if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
-            ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
-            unauthorized_request_error_response(config)
-            return
-        end
+    local web_origin = ngx.req.get_headers()['origin']
+    if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
+        ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
+        unauthorized_request_error_response(config)
+        return
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
@@ -266,7 +267,7 @@ function _M.run(config)
 
     -- CORS headers must also be added for the main API request
     if config.cors_enabled then
-        add_cors_response_headers(config)
+        add_cors_response_headers(config, false)
     end
 end
 
