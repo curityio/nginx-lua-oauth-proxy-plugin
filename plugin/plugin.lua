@@ -137,9 +137,10 @@ end
 
 local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
 
+    ngx.log(ngx.WARN, '*** HERE')
     local all_bytes, err = base64.decode_base64url(encrypted_cookie)
     if err then
-        ngx.log(ngx.WARN, 'A received cookie could not be base64url decoded ' .. err)
+        ngx.log(ngx.WARN, 'A received cookie could not be base64url decoded: ' .. err)
         return nil
     end
 

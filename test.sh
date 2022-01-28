@@ -27,4 +27,4 @@ cp plugin/plugin.lua "$OPENRESTY_ROOT/lualib/oauth-proxy.lua"
 #
 # Run all tests
 #
-prove -v -f t/http_get.t
+prove -v -f t/*.t
