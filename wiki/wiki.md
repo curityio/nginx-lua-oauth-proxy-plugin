@@ -12,8 +12,7 @@ brew install openresty/brew/openresty
 cpan Test::Nginx
 ```
 
-Then add a path of this form to the PATH in `.zprofile`.\
-This will ensure that the first nginx command in the PATH has LUA support.
+OpenResty will then point to an nginx instance at a path such as this.
 
 ```text
 /usr/local/Cellar/openresty/1.19.9.1_2/nginx/sbin
@@ -21,26 +20,26 @@ This will ensure that the first nginx command in the PATH has LUA support.
 
 ## Run Unit Tests
 
-Whenever the plugin code changes, copy the latest plugin to the `lualib` folder.\
-The `prove` utility can then be run to execute tests in the project's `t` folder:
+The `prove` utility can then be run to execute tests in the project's `t` folder.\
+Ensure that `test.sh` points to the correct OpenResty root location and then run it:
 
 ```bash
-cp plugin/plugin.lua /usr/local/Cellar/openresty/1.19.9.1_2/lualib/oauth-proxy.lua
-prove -v
+./test.sh
 ```
 
 ## Understand Test Behavior
 
 Each test spins up an instance of NGINX under the `t/servroot` folder which runs on the default test port of 1984.\
-Tests that are expected to succeed use proxy_pass to route to a target that runs after the module and simply returns:
+Tests that are expected to succeed use proxy_pass to route to a target that runs after the module and simply returns.\
+This example returns the decrypted access token as a target API response header, to support assertions.
 
 ```nginx
 location /t {
     rewrite_by_lua_block {
 
         local config = {
-            encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
             cookie_name_prefix = 'example',
+            encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
             trusted_web_origins = {
                 'http://www.example.com'
             },
@@ -82,18 +81,18 @@ GET /t
 ```
 
 View the `t/servroot/conf/nginx.conf` file to see the deployed configuration for a test.\
-If required, add `ngx_log_error` statements to C code, then look at test logs at `t/servroot/logs/error.log`.\
+If required, add `ngx_log_error` statements to LUA code, then look at logs at `t/servroot/logs/error.log`.\
 If you get cryptic permission errors or locked files, delete the `t/servroot` folder.
 
 ## Deploy the Plugin
 
-Run OpenResty and the plugin, with a configuration that toutes to a minimal JWT secured API:
+Run OpenResty and the plugin, with a configuration that routes to a minimal JWT secured API:
 
 ```bash
 ./docker/deploy.sh openresty
 ```
 
-Or run Kong and the plugin, with a configuration that toutes to a minimal REST API:
+Or run Kong and the plugin, with a configuration that routes to a minimal REST API:
 
 ```bash
 ./docker/deploy.sh kong
