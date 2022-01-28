@@ -37,18 +37,8 @@ local function initialize_configuration(config)
        config.cookie_name_prefix == nil or
        config.encryption_key     == nil or
        config.cors_enabled       == nil then
-        return nil
-    end
-
-    if #config.encryption_key ~= 64 then
-        ngx.log(ngx.WARN, 'The encryption key must be supplied as 64 hex characters')
-        return nil
-    end
-    
-    local encryption_key_bytes
-    if not pcall(function() encryption_key_bytes = from_hex(config.encryption_key) end) then
-        ngx.log(ngx.WARN, 'The encryption key contains invalid hex characters')
-        return nil
+        ngx.log(ngx.WARN, 'The OAuth proxy configuration is invalid and must be corrected')
+        return false
     end
 
     if config.trusted_web_origins == nil then
@@ -80,6 +70,22 @@ local function initialize_configuration(config)
         if config.cors_max_age == nil then
             config.cors_max_age = 86400
         end
+    end
+
+    return true
+end
+
+local function get_encryption_key_bytes(config)
+
+    if #config.encryption_key ~= 64 then
+        ngx.log(ngx.WARN, 'The encryption key must be supplied as 64 hex characters')
+        return nil
+    end
+    
+    local encryption_key_bytes
+    if not pcall(function() encryption_key_bytes = from_hex(config.encryption_key) end) then
+        ngx.log(ngx.WARN, 'The encryption key contains invalid hex characters')
+        return nil
     end
 
     return encryption_key_bytes
@@ -206,11 +212,10 @@ end
 --
 function _M.run(config)
 
-    -- Start by validation configuration and getting the decryption key
-    local encryption_key_bytes = initialize_configuration(config)
-    if not encryption_key_bytes then
-        ngx.log(ngx.WARN, 'The OAuth proxy configuration is invalid and must be corrected')
+    -- Start by validating configuration
+    if initialize_configuration(config) == false then 
         server_error_response(config)
+        return
     end
 
     -- Pre-flight requests cannot contain cookies, so add CORS headers and return
@@ -220,6 +225,13 @@ function _M.run(config)
             add_cors_response_headers(config, false)
         end
         ngx.exit(200)
+        return
+    end
+
+    -- Next get the encryption key as bytes
+    local encryption_key_bytes = get_encryption_key_bytes(config)
+    if not encryption_key_bytes then
+        server_error_response(config)
         return
     end
 

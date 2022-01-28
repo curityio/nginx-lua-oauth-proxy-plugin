@@ -131,7 +131,7 @@ $data;
 --- error_code: 500
 
 --- error_log
-The OAuth proxy configuration is invalid and must be corrected
+The encryption key must be supplied as 64 hex characters
 
 --- response_body_like chomp
 {"code":"server_error", "message":"Problem encountered processing the request"}
@@ -262,8 +262,6 @@ location /target {
 
 --- request
 GET /t
-
---- ONLY
 
 --- more_headers eval
 my $data;
