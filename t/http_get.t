@@ -16,8 +16,8 @@ SKIP: {
 
 __DATA__
 
-#################################################################################################
 === TEST HTTP_GET_1: GET without an origin header returns 401
+#################################################################################################
 #  SPA clients are expected to always send the origin header, as supported by all modern browsers
 #################################################################################################
 
@@ -48,10 +48,8 @@ GET /t
 --- error_log
 The request was from an untrusted web origin
 
---- end
-
-###############################################################################################
 === TEST HTTP_GET_2: GET with an untrusted origin header returns 401
+###############################################################################################
 # Only trusted SPA clients should be able to get data from the browser due to CORS restrictions
 ###############################################################################################
 
@@ -85,10 +83,8 @@ origin: https://www.malicious-site.com
 --- error_log
 The request was from an untrusted web origin
 
---- end
-
-##########################################################################################
 === TEST HTTP_GET_3: GET without a cookie or token credential returns 401
+##########################################################################################
 # Verify that a 401 is received when there is no message credential at all sent to the API
 ##########################################################################################
 
@@ -121,10 +117,8 @@ origin: https://www.example.com
 --- error_log
 No access token cookie was sent with the request
 
---- end
-
-#####################################################################################
 === TEST HTTP_GET_4: GET with an invalid cookie returns 401
+#####################################################################################
 # Verify that a 401 is received when there is an obviously invalid message credential
 #####################################################################################
 
@@ -160,10 +154,8 @@ $data;
 --- error_log
 A received cookie had an invalid length
 
---- end
-
-#################################################################################
 === TEST HTTP_GET_5: GET returns correct CORS response headers with plugin errors
+#################################################################################
 # Verify that when a 401 is received the SPA can read details due to CORS headers
 #################################################################################
 
@@ -200,12 +192,10 @@ $data;
 access-control-allow-origin: http://www.example.com
 access-control-allow-credentials: true
 
---- end
-
-####################################################################################
 === TEST HTTP_GET_6: GET with a valid cookie returns 200 and an Authorization header
+##################################################################
 # Ensure that GET requests work as expected with the correct input
-####################################################################################
+##################################################################
 
 --- config
 location /t {
@@ -246,12 +236,10 @@ $data;
 --- response_headers eval
 "authorization: Bearer " . $main::at_opaque
 
---- end
-
-########################################################################################################
 === TEST HTTP_GET_7: GET with a valid request and CORS enabled returns the correct CORS response headers
+#######################################################################
 # Ensure that CORS headers are returned correctly for success responses
-########################################################################################################
+#######################################################################
 --- config
 location /t {
     
@@ -294,12 +282,10 @@ access-control-allow-headers: x-mycompany-myproduct-csrf
 access-control-expose-headers:
 access-control-max-age: 86400
 
---- end
-
-#####################################################################################################
 === TEST HTTP_GET_8: GET with a valid request and CORS disabled does not return CORS response headers
+###########################################################################
 # Ensure that CORS headers can be handled by an API and not the OAuth proxy
-#####################################################################################################
+###########################################################################
 --- config
 location /t {
     
@@ -342,12 +328,10 @@ access-control-allow-headers:
 access-control-expose-headers:
 access-control-max-age:
 
---- end
-
-#######################################################################################################
 === TEST HTTP_GET_9: GET with a valid request removes cookie related headers when forwarding to the API
+#########################################################################
 # Ensure that the API only receives a JWT and does not know about cookies
-#######################################################################################################
+#########################################################################
 --- config
 location /t {
     
@@ -389,12 +373,10 @@ $data;
 cookie:
 x-example-csrf:
 
---- end
-
-####################################################################################################
 === TEST HTTP_GET_9: GET with a valid request passes cookie headers through to the API when required
+########################################################
 # Ensure that the API can receive cookies if ever needed
-####################################################################################################
+########################################################
 --- config
 location /t {
     
@@ -435,10 +417,8 @@ $data;
 --- reponse_headers eval
 cookie: $main::at_opaque_cookie
 
---- end
-
-##########################################################################################################
 === TEST HTTP_GET_10: GET with a bearer token is allowed when enabled
+##########################################################################################################
 # Verify that mobile and SPA clients can use the same routes, where the first sends access tokens directly
 ##########################################################################################################
 
@@ -480,12 +460,10 @@ authorization: Bearer xxx
 --- reponse_headers
 authorization: Bearer xxx
 
---- end
-
-##########################################################################################################
 === TEST HTTP_GET_11: GET with a bearer token is denied when not enabled
+#######################################################################################################
 # Verify that if a company wants to force mobile and SPA clients to use different routes they can do so
-##########################################################################################################
+#######################################################################################################
 
 --- config
 location /t {
@@ -519,5 +497,3 @@ authorization: Bearer xxx
 
 --- error_log
 No access token cookie was sent with the request
-
---- end
