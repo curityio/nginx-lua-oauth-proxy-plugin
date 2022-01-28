@@ -31,7 +31,15 @@ local function get_csrf_header_name(config)
     return 'x-' .. config.cookie_name_prefix .. '-csrf'
 end
 
-local function apply_configuration_defaults(config)
+local function initialize_configuration(config)
+
+    if config                    == nil or
+       config.cookie_name_prefix == nil or
+       config.encryption_key     == nil or
+       config.cors_enabled       == nil then
+        ngx.log(ngx.WARN, 'The OAuth proxy configuration is invalid and must be corrected')
+        return false
+    end
 
     if config.trusted_web_origins == nil then
         config.trusted_web_origins = {}
@@ -55,14 +63,32 @@ local function apply_configuration_defaults(config)
             config.cors_allow_headers = { get_csrf_header_name(config) }
         end
 
-        if config.cors_exposed_headers == nil then
-            config.cors_exposed_headers = {}
+        if config.cors_expose_headers == nil then
+            config.cors_expose_headers = {}
         end
 
         if config.cors_max_age == nil then
             config.cors_max_age = 86400
         end
     end
+
+    return true
+end
+
+local function get_encryption_key_bytes(config)
+
+    if #config.encryption_key ~= 64 then
+        ngx.log(ngx.WARN, 'The encryption key must be supplied as 64 hex characters')
+        return nil
+    end
+    
+    local encryption_key_bytes
+    if not pcall(function() encryption_key_bytes = from_hex(config.encryption_key) end) then
+        ngx.log(ngx.WARN, 'The encryption key contains invalid hex characters')
+        return nil
+    end
+
+    return encryption_key_bytes
 end
 
 local function add_cors_response_headers(config, is_error)
@@ -85,24 +111,24 @@ local function add_cors_response_headers(config, is_error)
             local method = ngx.req.get_method():upper()
             if method == 'OPTIONS' then
                 if config.cors_allow_methods then
-                    local allowedMethods = table.concat(config.cors_allow_methods, ',')
-                    if allowedMethods then
-                        ngx.header['access-control-allow-methods'] = allowedMethods
+                    local allow_methods_str = table.concat(config.cors_allow_methods, ',')
+                    if allow_methods_str then
+                        ngx.header['access-control-allow-methods'] = allow_methods_str
                     end
                 end
             end
 
             if config.cors_allow_headers then
-                local allowedHeaders = table.concat(config.cors_allow_headers, ',')
-                if allowedHeaders then
-                    ngx.header['access-control-allow-headers'] = allowedHeaders
+                local allow_headers_str = table.concat(config.cors_allow_headers, ',')
+                if allow_headers_str then
+                    ngx.header['access-control-allow-headers'] = allow_headers_str
                 end
             end
 
-            if config.cors_exposed_headers then
-                local exposedHeaders = table.concat(config.cors_exposed_headers, ',')
-                if exposedHeaders then
-                    ngx.header['access-control-expose-headers'] = exposedHeaders
+            if config.cors_expose_headers then
+                local expose_headers_str = table.concat(config.cors_expose_headers, ',')
+                if expose_headers_str then
+                    ngx.header['access-control-expose-headers'] = expose_headers_str
                 end
             end
             
@@ -117,7 +143,9 @@ end
 
 local function error_response(status, code, message, config)
 
-    add_cors_response_headers(config, true)
+    if config then
+        add_cors_response_headers(config, true)
+    end
 
     local method = ngx.req.get_method():upper()
     if method ~= 'HEAD' then
@@ -131,15 +159,19 @@ local function error_response(status, code, message, config)
     ngx.exit(status)
 end
 
+local function server_error_response(config)
+    error_response(ngx.HTTP_INTERNAL_SERVER_ERROR, 'server_error', 'Problem encountered processing the request', config)
+end
+
 local function unauthorized_request_error_response(config)
     error_response(ngx.HTTP_UNAUTHORIZED, 'unauthorized', 'Access denied due to missing or invalid credentials', config)
 end
 
-local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
+local function decrypt_cookie(encrypted_cookie, encryption_key_bytes)
 
     local all_bytes, err = base64.decode_base64url(encrypted_cookie)
     if err then
-        ngx.log(ngx.WARN, 'A received cookie could not be base64url decoded ' .. err)
+        ngx.log(ngx.WARN, 'A received cookie could not be base64url decoded: ' .. err)
         return nil
     end
 
@@ -166,7 +198,6 @@ local function decrypt_cookie(encrypted_cookie, encryption_key_hex)
     local tag_bytes = string.sub(all_bytes, offset)
 
     local cipher = cipher.new('aes-256-gcm')
-    local encryption_key_bytes = from_hex(encryption_key_hex)
     local decrypted_cookie, err = cipher:decrypt(encryption_key_bytes, iv_bytes, ciphertext_bytes, true, nil, tag_bytes)
     if err then
         ngx.log(ngx.WARN, 'Error decrypting cookie: ' .. err)
@@ -181,7 +212,11 @@ end
 --
 function _M.run(config)
 
-    apply_configuration_defaults(config)
+    -- Start by validating configuration
+    if initialize_configuration(config) == false then 
+        server_error_response(config)
+        return
+    end
 
     -- Pre-flight requests cannot contain cookies, so add CORS headers and return
     local method = ngx.req.get_method():upper()
@@ -190,6 +225,13 @@ function _M.run(config)
             add_cors_response_headers(config, false)
             ngx.exit(200)
         end
+        return
+    end
+
+    -- Next get the encryption key as bytes
+    local encryption_key_bytes = get_encryption_key_bytes(config)
+    if not encryption_key_bytes then
+        server_error_response(config)
         return
     end
 
@@ -221,7 +263,7 @@ function _M.run(config)
             return
         end
 
-        local csrf_token = decrypt_cookie(csrf_cookie, config.encryption_key)
+        local csrf_token = decrypt_cookie(csrf_cookie, encryption_key_bytes)
         if not csrf_token then
             ngx.log(ngx.WARN, 'Error decrypting CSRF cookie')
             unauthorized_request_error_response(config)
@@ -246,7 +288,7 @@ function _M.run(config)
     end
 
     -- Decrypt the access token cookie, which is encrypted using AES256
-    local access_token = decrypt_cookie(at_cookie, config.encryption_key)
+    local access_token = decrypt_cookie(at_cookie, encryption_key_bytes)
     if not access_token then
         ngx.log(ngx.WARN, 'Error decrypting access token cookie')
         unauthorized_request_error_response(config)
