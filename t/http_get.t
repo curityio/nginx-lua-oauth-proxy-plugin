@@ -98,7 +98,8 @@ location /t {
             trusted_web_origins = {
                 'https://www.example.com'
             },
-            cors_enabled = true
+            cors_enabled = true,
+            allow_tokens = true
         }
 
         local oauthProxy = require 'oauth-proxy'
@@ -322,9 +323,6 @@ $data;
 --- response_headers
 access-control-allow-origin:
 access-control-allow-credentials:
-access-control-allow-headers:
-access-control-expose-headers:
-access-control-max-age:
 vary:
 
 === TEST HTTP_GET_9: GET with a valid request removes cookie related headers when forwarding to the API
@@ -372,7 +370,7 @@ $data;
 cookie:
 x-example-csrf:
 
-=== TEST HTTP_GET_9: GET with a valid request passes cookie headers through to the API when required
+=== TEST HTTP_GET_10: GET with a valid request passes cookie headers through to the API when required
 ########################################################
 # Ensure that the API can receive cookies if ever needed
 ########################################################
@@ -416,7 +414,7 @@ $data;
 --- reponse_headers eval
 cookie: $main::at_opaque_cookie
 
-=== TEST HTTP_GET_10: GET with a bearer token is allowed when enabled
+=== TEST HTTP_GET_11: GET with a bearer token is allowed when enabled
 ##########################################################################################################
 # Verify that mobile and SPA clients can use the same routes, where the first sends access tokens directly
 ##########################################################################################################
@@ -459,7 +457,7 @@ authorization: Bearer xxx
 --- reponse_headers
 authorization: Bearer xxx
 
-=== TEST HTTP_GET_11: GET with a bearer token is denied when not enabled
+=== TEST HTTP_GET_12: GET with a bearer token is denied when not enabled
 #######################################################################################################
 # Verify that if a company wants to force mobile and SPA clients to use different routes they can do so
 #######################################################################################################

@@ -18,7 +18,7 @@ __DATA__
 
 === TEST CONFIG_1: A deployment with empty configuration does not crash NGINX
 ######################################################################################################
-# Verify that null configuration is handled in a controller manner rather than causing server problems
+# Verify that null configuration is handled in a controlled manner rather than causing server problems
 ######################################################################################################
 
 --- config
