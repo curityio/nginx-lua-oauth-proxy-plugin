@@ -97,31 +97,34 @@ local function add_cors_response_headers(config, is_error)
     if origin and array_has_value(config.trusted_web_origins, origin) then
 
         if config.cors_enabled or is_error then
-
-            -- For plugin errors we always add these CORS headers, so that the SPA can read the error response body
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
-            if #config.trusted_web_origins > 1 then
-                ngx.header['vary'] = 'origin'
-            end
+            ngx.header['vary'] = 'origin'
         end
 
         if config.cors_enabled then
-
+            
             local method = ngx.req.get_method():upper()
             if method == 'OPTIONS' then
+            
                 if config.cors_allow_methods then
                     local allow_methods_str = table.concat(config.cors_allow_methods, ',')
                     if allow_methods_str then
                         ngx.header['access-control-allow-methods'] = allow_methods_str
                     end
                 end
-            end
 
-            if config.cors_allow_headers then
-                local allow_headers_str = table.concat(config.cors_allow_headers, ',')
-                if allow_headers_str then
-                    ngx.header['access-control-allow-headers'] = allow_headers_str
+                if config.cors_allow_headers then
+                    local allow_headers_str = table.concat(config.cors_allow_headers, ',')
+                    if allow_headers_str then
+                        ngx.header['access-control-allow-headers'] = allow_headers_str
+                    end
+                end
+                
+                if config.cors_max_age then
+                    if config.cors_max_age > 0 then
+                        ngx.header['access-control-max-age'] = config.cors_max_age
+                    end
                 end
             end
 
@@ -129,12 +132,6 @@ local function add_cors_response_headers(config, is_error)
                 local expose_headers_str = table.concat(config.cors_expose_headers, ',')
                 if expose_headers_str then
                     ngx.header['access-control-expose-headers'] = expose_headers_str
-                end
-            end
-            
-            if config.cors_max_age then
-                if config.cors_max_age > 0 then
-                    ngx.header['access-control-max-age'] = config.cors_max_age
                 end
             end
         end

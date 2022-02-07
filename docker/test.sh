@@ -82,6 +82,12 @@ if [ "$CREDENTIALS" != 'true' ]; then
   exit
 fi
 
+VARY=$(getHeaderValue 'vary')
+if [ "$VARY" != 'origin' ]; then
+  echo '*** The CORS vary response header was not set correctly'
+  exit
+fi
+
 METHODS=$(getHeaderValue 'access-control-allow-methods')
 if [ "$METHODS" != 'OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
@@ -151,15 +157,9 @@ if [ "$CREDENTIALS" != 'true' ]; then
   exit
 fi
 
-HEADERS=$(getHeaderValue 'access-control-allow-headers')
-if [ "$HEADERS" != 'x-example-csrf' ]; then
-  echo '*** The CORS access-control-allow-methods response header was not set correctly'
-  exit
-fi
-
-MAXAGE=$(getHeaderValue 'access-control-max-age')
-if [ "$MAXAGE" != '86400' ]; then
-  echo '*** The CORS access-control-max-age response header was not set correctly'
+VARY=$(getHeaderValue 'vary')
+if [ "$VARY" != 'origin' ]; then
+  echo '*** The CORS vary response header was not set correctly'
   exit
 fi
 echo '4. GET request returned all correct CORS headers for a valid web origin'

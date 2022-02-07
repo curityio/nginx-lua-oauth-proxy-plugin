@@ -274,7 +274,4 @@ $data;
 --- response_headers
 access-control-allow-origin: https://www.example.com
 access-control-allow-credentials: true
-access-control-allow-methods:
-access-control-allow-headers: myallowedheader1,myallowedheader2
-access-control-expose-headers: myexposedheader
-access-control-max-age: 600
+vary: origin

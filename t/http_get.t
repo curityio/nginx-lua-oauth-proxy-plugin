@@ -278,9 +278,7 @@ $data;
 --- response_headers
 access-control-allow-origin: http://www.example.com
 access-control-allow-credentials: true
-access-control-allow-headers: x-mycompany-myproduct-csrf
-access-control-expose-headers:
-access-control-max-age: 86400
+vary: origin
 
 === TEST HTTP_GET_8: GET with a valid request and CORS disabled does not return CORS response headers
 ###########################################################################
@@ -327,6 +325,7 @@ access-control-allow-credentials:
 access-control-allow-headers:
 access-control-expose-headers:
 access-control-max-age:
+vary:
 
 === TEST HTTP_GET_9: GET with a valid request removes cookie related headers when forwarding to the API
 #########################################################################
