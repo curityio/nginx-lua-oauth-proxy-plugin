@@ -31,20 +31,25 @@ local function get_csrf_header_name(config)
     return 'x-' .. config.cookie_name_prefix .. '-csrf'
 end
 
+--
+-- Verify configuration and set defaults that are the same for all requests
+--
 local function initialize_configuration(config)
 
-    if config                    == nil or
-       config.cookie_name_prefix == nil or
-       config.encryption_key     == nil or
-       config.cors_enabled       == nil then
-        ngx.log(ngx.WARN, 'The OAuth proxy configuration is invalid and must be corrected')
-        return false
+    if config                      == nil or
+       config.cookie_name_prefix   == nil or
+       config.encryption_key       == nil or
+       config.cors_enabled         == nil or
+       config.trusted_web_origins  == nil or
+       #config.trusted_web_origins == 0 then
+         ngx.log(ngx.WARN, 'The OAuth proxy configuration is invalid and must be corrected')
+         return false
     end
 
     if config.trusted_web_origins == nil then
         config.trusted_web_origins = {}
     end
-    
+
     if config.allow_tokens == nil then
         config.allow_tokens = false
     end
@@ -55,85 +60,91 @@ local function initialize_configuration(config)
 
     if config.cors_enabled then
 
-        if config.cors_allow_methods == nil then
-            config.cors_allow_methods = { 'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
-        end
+        local method = ngx.req.get_method():upper()
+        if method == 'OPTIONS' then
 
-        if config.cors_allow_headers == nil then
-            config.cors_allow_headers = { get_csrf_header_name(config) }
+            if config.cors_allow_methods == nil then
+                config.cors_allow_methods = {'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
+            end
+
+            if config.cors_max_age == nil then
+                config.cors_max_age = 86400
+            end
         end
 
         if config.cors_expose_headers == nil then
             config.cors_expose_headers = {}
-        end
-
-        if config.cors_max_age == nil then
-            config.cors_max_age = 86400
         end
     end
 
     return true
 end
 
-local function get_encryption_key_bytes(config)
+--
+-- When no headers are configured we default to returning those requested at runtime by SPAs
+-- This enables SPAs to send new application headers to APIs without admin changes
+--
+local function get_cors_allowed_headers(config)
 
-    if #config.encryption_key ~= 64 then
-        ngx.log(ngx.WARN, 'The encryption key must be supplied as 64 hex characters')
-        return nil
+    if config.cors_allow_headers ~= nil then
+        return config.cors_allow_headers
     end
-    
-    local encryption_key_bytes
-    if not pcall(function() encryption_key_bytes = from_hex(config.encryption_key) end) then
-        ngx.log(ngx.WARN, 'The encryption key contains invalid hex characters')
-        return nil
+   
+    local cors_allow_headers = {}
+    local requested_headers = ngx.req.get_headers()['access-control-request-headers']
+    if requested_headers then
+        for header in requested_headers:gmatch('[^,%s]+') do
+            table.insert(cors_allow_headers, header)
+        end
     end
 
-    return encryption_key_bytes
+    return cors_allow_headers
 end
 
+--
+-- Most CORS response headers must be returned during OPTIONS requests
+-- A subset of headers are needed during the main request
+--
 local function add_cors_response_headers(config, is_error)
 
     local origin = ngx.req.get_headers()['origin']
     if origin and array_has_value(config.trusted_web_origins, origin) then
-
+        
         if config.cors_enabled or is_error then
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
-            ngx.header['vary'] = 'origin'
         end
 
         if config.cors_enabled then
-            
+
+            local vary = 'origin'
             local method = ngx.req.get_method():upper()
             if method == 'OPTIONS' then
-            
-                if config.cors_allow_methods then
+
+                if #config.cors_allow_methods > 0 then
                     local allow_methods_str = table.concat(config.cors_allow_methods, ',')
-                    if allow_methods_str then
-                        ngx.header['access-control-allow-methods'] = allow_methods_str
-                    end
+                    ngx.header['access-control-allow-methods'] = allow_methods_str
                 end
 
-                if config.cors_allow_headers then
-                    local allow_headers_str = table.concat(config.cors_allow_headers, ',')
-                    if allow_headers_str then
-                        ngx.header['access-control-allow-headers'] = allow_headers_str
-                    end
+                local cors_allow_headers = get_cors_allowed_headers(config)
+                if #cors_allow_headers > 0 then
+                    local allow_headers_str = table.concat(cors_allow_headers, ',')
+                    ngx.header['access-control-allow-headers'] = allow_headers_str
                 end
                 
-                if config.cors_max_age then
-                    if config.cors_max_age > 0 then
-                        ngx.header['access-control-max-age'] = config.cors_max_age
-                    end
+                if config.cors_max_age > 0 then
+                    ngx.header['access-control-max-age'] = config.cors_max_age
                 end
+
+                vary = 'origin,access-control-request-headers'
             end
 
-            if config.cors_expose_headers then
+            if #config.cors_expose_headers > 0 then
                 local expose_headers_str = table.concat(config.cors_expose_headers, ',')
-                if expose_headers_str then
-                    ngx.header['access-control-expose-headers'] = expose_headers_str
-                end
+                ngx.header['access-control-expose-headers'] = expose_headers_str
             end
+
+            ngx.header['vary'] = vary
         end
     end
 end
@@ -164,6 +175,25 @@ local function unauthorized_request_error_response(config)
     error_response(ngx.HTTP_UNAUTHORIZED, 'unauthorized', 'Access denied due to missing or invalid credentials', config)
 end
 
+local function get_encryption_key_bytes(config)
+
+    if #config.encryption_key ~= 64 then
+        ngx.log(ngx.WARN, 'The encryption key must be supplied as 64 hex characters')
+        return nil
+    end
+    
+    local encryption_key_bytes
+    if not pcall(function() encryption_key_bytes = from_hex(config.encryption_key) end) then
+        ngx.log(ngx.WARN, 'The encryption key contains invalid hex characters')
+        return nil
+    end
+
+    return encryption_key_bytes
+end
+
+--
+-- Perform the AES256-GCM decryption work and any errors due to bad input result in a 401 error
+--
 local function decrypt_cookie(encrypted_cookie, encryption_key_bytes)
 
     local all_bytes, err = base64.decode_base64url(encrypted_cookie)

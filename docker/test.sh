@@ -64,6 +64,7 @@ echo '1. OPTIONS request successfully denied access to an untrusted web origin'
 echo '2. Testing OPTIONS request for a valid web origin ...'
 HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
 -H "origin: $WEB_ORIGIN" \
+-H "access-control-request-headers: x-example-csrf" \
 -o $RESPONSE_FILE -w '%{http_code}')
 if [ "$HTTP_STATUS" != '200' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
@@ -83,7 +84,7 @@ if [ "$CREDENTIALS" != 'true' ]; then
 fi
 
 VARY=$(getHeaderValue 'vary')
-if [ "$VARY" != 'origin' ]; then
+if [ "$VARY" != 'origin,access-control-request-headers' ]; then
   echo '*** The CORS vary response header was not set correctly'
   exit
 fi
@@ -96,7 +97,7 @@ fi
 
 HEADERS=$(getHeaderValue 'access-control-allow-headers')
 if [ "$HEADERS" != 'x-example-csrf' ]; then
-  echo '*** The CORS access-control-allow-methods response header was not set correctly'
+  echo '*** The CORS access-control-allow-headers response header was not set correctly'
   exit
 fi
 
