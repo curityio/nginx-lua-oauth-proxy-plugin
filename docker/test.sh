@@ -90,7 +90,7 @@ if [ "$VARY" != 'origin,access-control-request-headers' ]; then
 fi
 
 METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE' ]; then
+if [ "$METHODS" != 'OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi

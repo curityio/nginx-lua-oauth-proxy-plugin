@@ -64,7 +64,7 @@ local function initialize_configuration(config)
         if method == 'OPTIONS' then
 
             if config.cors_allow_methods == nil then
-                config.cors_allow_methods = {'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'}
+                config.cors_allow_methods = {'OPTIONS', 'HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'}
             end
 
             if config.cors_max_age == nil then
@@ -250,7 +250,7 @@ function _M.run(config)
     if method == 'OPTIONS' then
         if config.cors_enabled then
             add_cors_response_headers(config, false)
-            ngx.exit(200)
+            ngx.exit(204)
         end
         return
     end

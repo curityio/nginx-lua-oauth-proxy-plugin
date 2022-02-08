@@ -178,7 +178,7 @@ All API endpoints will then return these CORS headers to browsers in response he
 ```text
 access-control-allow-origin: http://www.example.com
 access-control-allow-credentials: true
-access-control-allow-methods: OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE
+access-control-allow-methods: OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE
 access-control-allow-headers: x-example-csrf
 access-control-max-age: 86400
 ```
