@@ -18,7 +18,7 @@ __DATA__
 
 === TEST CONFIG_1: A deployment with empty configuration does not crash NGINX
 ######################################################################################################
-# Verify that null configuration is handled in a controller manner rather than causing server problems
+# Verify that null configuration is handled in a controlled manner rather than causing server problems
 ######################################################################################################
 
 --- config
@@ -274,7 +274,4 @@ $data;
 --- response_headers
 access-control-allow-origin: https://www.example.com
 access-control-allow-credentials: true
-access-control-allow-methods:
-access-control-allow-headers: myallowedheader1,myallowedheader2
-access-control-expose-headers: myexposedheader
-access-control-max-age: 600
+vary: origin

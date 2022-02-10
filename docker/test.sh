@@ -40,7 +40,7 @@ echo '1. Testing OPTIONS request for an untrusted web origin ...'
 HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
 -H "origin: https://malicious-site.com" \
 -o $RESPONSE_FILE -w '%{http_code}')
-if [ "$HTTP_STATUS" != '200' ]; then
+if [ "$HTTP_STATUS" != '204' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
   exit
 fi
@@ -64,8 +64,9 @@ echo '1. OPTIONS request successfully denied access to an untrusted web origin'
 echo '2. Testing OPTIONS request for a valid web origin ...'
 HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
 -H "origin: $WEB_ORIGIN" \
+-H "access-control-request-headers: x-example-csrf" \
 -o $RESPONSE_FILE -w '%{http_code}')
-if [ "$HTTP_STATUS" != '200' ]; then
+if [ "$HTTP_STATUS" != '204' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
   exit
 fi
@@ -82,15 +83,21 @@ if [ "$CREDENTIALS" != 'true' ]; then
   exit
 fi
 
+VARY=$(getHeaderValue 'vary')
+if [ "$VARY" != 'origin,access-control-request-headers' ]; then
+  echo '*** The CORS vary response header was not set correctly'
+  exit
+fi
+
 METHODS=$(getHeaderValue 'access-control-allow-methods')
-if [ "$METHODS" != 'OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE' ]; then
+if [ "$METHODS" != 'OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE' ]; then
   echo '*** The CORS access-control-allow-methods response header was not set correctly'
   exit
 fi
 
 HEADERS=$(getHeaderValue 'access-control-allow-headers')
 if [ "$HEADERS" != 'x-example-csrf' ]; then
-  echo '*** The CORS access-control-allow-methods response header was not set correctly'
+  echo '*** The CORS access-control-allow-headers response header was not set correctly'
   exit
 fi
 
@@ -151,15 +158,9 @@ if [ "$CREDENTIALS" != 'true' ]; then
   exit
 fi
 
-HEADERS=$(getHeaderValue 'access-control-allow-headers')
-if [ "$HEADERS" != 'x-example-csrf' ]; then
-  echo '*** The CORS access-control-allow-methods response header was not set correctly'
-  exit
-fi
-
-MAXAGE=$(getHeaderValue 'access-control-max-age')
-if [ "$MAXAGE" != '86400' ]; then
-  echo '*** The CORS access-control-max-age response header was not set correctly'
+VARY=$(getHeaderValue 'vary')
+if [ "$VARY" != 'origin' ]; then
+  echo '*** The CORS vary response header was not set correctly'
   exit
 fi
 echo '4. GET request returned all correct CORS headers for a valid web origin'

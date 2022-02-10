@@ -101,6 +101,13 @@ Or run Kong and the plugin, with a configuration that routes to a minimal REST A
 Call the API at http://localhost:3000, which will initially return an unauthorized error.\
 The gateway logs are visible in the terminal window for troubleshooting.
 
+```curl
+AT_COOKIE='AcYBf995tTBVsLtQLvOuLUZXHm2c-XqP8t7SKmhBiQtzy5CAw4h_RF6rXyg6kHrvhb8x4WaLQC6h3mw6a3O3Q9A'
+curl -i -X GET http://localhost:3000/api \
+-H "origin: http://www.example.com" \
+-H "cookie: example-at=$AT_COOKIE"
+```
+
 ## Run HTTP Tests
 
 Next run some curl based tests in another terminal window:

@@ -1,7 +1,7 @@
 # OAuth Proxy Plugin for NGINX LUA Systems
 
-[![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
-[![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
+[![Quality](https://img.shields.io/badge/quality-test-yellow)](https://curity.io/resources/code-examples/status/)
+[![Availability](https://img.shields.io/badge/availability-binary-blue)](https://curity.io/resources/code-examples/status/)
 
 A LUA plugin that is used during API calls from SPA clients, to forward JWTs to APIs.\
 This is part of a `Backend for Frontend` solution for SPAs, in line with [best practices for browser based apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps).
@@ -122,9 +122,9 @@ Include here any additional [non-safelisted request headers](https://developer.m
 To implement data changing requests, include the CSRF request header name, eg `x-example-csrf`.\
 A '*' wildcard value should not be configured here, since it will not work with credentialed requests.
 
-#### cors_exposed_headers
+#### cors_expose_headers
 
-> **Syntax**: **`cors_exposed_headers`** `string[]`
+> **Syntax**: **`cors_expose_headers`** `string[]`
 >
 > **Default**: *[]*
 >
@@ -178,12 +178,12 @@ All API endpoints will then return these CORS headers to browsers in response he
 ```text
 access-control-allow-origin: http://www.example.com
 access-control-allow-credentials: true
-access-control-allow-methods: OPTIONS,GET,HEAD,POST,PUT,PATCH,DELETE
+access-control-allow-methods: OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE
 access-control-allow-headers: x-example-csrf
 access-control-max-age: 86400
 ```
 
-The above configuration expands as follows, and you can customize this further if needed:
+If you prefer you can override default settings:
 
 ```text
 local config = {
@@ -196,14 +196,15 @@ local config = {
     allow_tokens = false,
     remove_cookie_headers = true,
     cors_allow_methods = {
-        'OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'
+        'OPTIONS', 'GET', 'POST'
     },
     cors_allow_headers = {
+        'my-header',
         'x-example-csrf'
     },
-    cors_exposed_headers = {
+    cors_expose_headers = {
     },
-    cors_max_age = 86400
+    cors_max_age = 600
 }
 ```
 
@@ -223,15 +224,12 @@ plugins:
       cors_allow_methods:
       - OPTIONS
       - GET
-      - HEAD
       - POST
-      - PUT
-      - PATCH
-      - DELETE
       cors_allow_headers:
+      - my-header
       - x-example-csrf
-      cors_exposed_headers: []
-      cors_max_age: 86400
+      cors_expose_headers: []
+      cors_max_age: 600
 ```
 
 If you prefer you can configure `cors_enabled=false`, in which case you'll need to handle CORS in your API.

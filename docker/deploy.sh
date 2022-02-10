@@ -21,7 +21,8 @@ fi
 #
 # Supply the 32 byte encryption key for AES256 as an environment variable
 #
-export ENCRYPTION_KEY='4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50'
+export ENCRYPTION_KEY=$(openssl rand 32 | xxd -p -c 64)
+echo -n $ENCRYPTION_KEY > encryption.key
 
 #
 # For Kong we must update a template file

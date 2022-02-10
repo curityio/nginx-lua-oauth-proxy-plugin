@@ -2,3 +2,4 @@
 response.txt
 kong.yml
 t/servroot
+encryption.key

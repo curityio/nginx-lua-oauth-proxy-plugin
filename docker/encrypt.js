@@ -1,8 +1,8 @@
 'use strict';
 
+const fs = require('fs');
 const crypto = require('crypto');
 const {exit} = require('process');
-const ENCRYPTION_KEY = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50';
 const GCM_IV_SIZE = 12;
 const CURRENT_VERSION = 1;
 
@@ -14,7 +14,8 @@ try {
     }
 
     const payloadText = args[0];
-    const encryptionKeyBytes = Buffer.from(ENCRYPTION_KEY, 'hex');
+    const encryptionKeyHex = fs.readFileSync('./encryption.key', 'ascii');
+    const encryptionKeyBytes = Buffer.from(encryptionKeyHex, 'hex');
     const ivBytes = crypto.randomBytes(GCM_IV_SIZE);
     const cipher = crypto.createCipheriv('aes-256-gcm', encryptionKeyBytes, ivBytes);
     
