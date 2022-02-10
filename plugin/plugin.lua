@@ -135,8 +135,10 @@ local function add_cors_response_headers(config, is_error)
                 if config.cors_max_age > 0 then
                     ngx.header['access-control-max-age'] = config.cors_max_age
                 end
-
-                vary = 'origin,access-control-request-headers'
+                
+                if config.cors_allow_headers == nil then
+                    vary = 'origin,access-control-request-headers'
+                end
             end
 
             if #config.cors_expose_headers > 0 then

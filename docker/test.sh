@@ -40,7 +40,7 @@ echo '1. Testing OPTIONS request for an untrusted web origin ...'
 HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
 -H "origin: https://malicious-site.com" \
 -o $RESPONSE_FILE -w '%{http_code}')
-if [ "$HTTP_STATUS" != '200' ]; then
+if [ "$HTTP_STATUS" != '204' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
   exit
 fi
@@ -66,7 +66,7 @@ HTTP_STATUS=$(curl -i -s -X OPTIONS "$API_URL" \
 -H "origin: $WEB_ORIGIN" \
 -H "access-control-request-headers: x-example-csrf" \
 -o $RESPONSE_FILE -w '%{http_code}')
-if [ "$HTTP_STATUS" != '200' ]; then
+if [ "$HTTP_STATUS" != '204' ]; then
   echo "*** OPTIONS request failed, status: $HTTP_STATUS"
   exit
 fi
