@@ -46,7 +46,7 @@ location /t {
             cors_enabled = true
         }
 
-        local oauthProxy = require 'oauth-proxy'
+        local oauthProxy = require 'resty.oauth-proxy'
         oauthProxy.run(config)
     }
     
