@@ -5,9 +5,10 @@
 ######################################################################
 
 #
-# Ensure that we are in the folder containing this script
+# Ensure that we are in the root folder
 #
 cd "$(dirname "${BASH_SOURCE[0]}")"
+cd ..
 
 #
 # Get command line arguments
@@ -22,16 +23,16 @@ fi
 # Supply the 32 byte encryption key for AES256 as an environment variable
 #
 export ENCRYPTION_KEY=$(openssl rand 32 | xxd -p -c 64)
-echo -n $ENCRYPTION_KEY > encryption.key
+echo -n $ENCRYPTION_KEY > docker/encryption.key
 
 #
 # For Kong we must update a template file
 #
 if [ "$PROFILE" == 'kong' ]; then
-  envsubst < kong/kong.template.yml > ./kong/kong.yml
+  envsubst < docker/kong/kong.template.yml > docker/kong/kong.yml
 fi
 
 #
 # Deploy the system
 #
-docker compose --profile "$PROFILE" --project-name oauthproxy up --build --force-recreate
+docker compose --file ./docker/docker-compose.yml --profile "$PROFILE" --project-name oauthproxy up --build --force-recreate

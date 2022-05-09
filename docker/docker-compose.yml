@@ -7,17 +7,13 @@ services:
   kong:
     image: custom_kong:2.6.0-alpine
     build:
-      context: .
-      dockerfile: ./kong/Dockerfile
+      context: ..
+      dockerfile: ./docker/kong/Dockerfile
     hostname: kongserver
     ports:
       - 3000:3000
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
-      - ../plugin/plugin.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/access.lua
-      - ../plugin/handler.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/handler.lua
-      - ../plugin/schema.lua:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/schema.lua
-      - ../plugin/kong-oauth-proxy-1.0.0-1.rockspec:/usr/local/share/lua/5.1/kong/plugins/oauth-proxy/oauth-proxy-1.0.0-1.rockspec
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
@@ -33,14 +29,13 @@ services:
   openresty:
     image: custom_openresty/openresty:1.19.9.1-bionic
     build:
-      context: .
-      dockerfile: ./openresty/Dockerfile
+      context: ..
+      dockerfile: ./docker/openresty/Dockerfile
     hostname: openrestyserver
     ports:
       - 3000:3000
     volumes:
       - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-      - ../plugin/plugin.lua:/usr/local/openresty/lualib/oauth-proxy.lua
     environment:
       ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
     profiles:
@@ -52,5 +47,5 @@ services:
   business-api:
     hostname: apiserver
     build:
-      context: .
-      dockerfile: ./api/Dockerfile
+      context: ..
+      dockerfile: ./docker/api/Dockerfile
