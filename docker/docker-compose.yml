@@ -6,9 +6,6 @@ services:
   #
   kong:
     image: custom_kong:2.6.0-alpine
-    build:
-      context: ..
-      dockerfile: ./docker/kong/Dockerfile
     hostname: kongserver
     ports:
       - 3000:3000
@@ -27,10 +24,7 @@ services:
   # Use OpenResty as the reverse proxy when the openresty profile is set on the command line
   #
   openresty:
-    image: custom_openresty/openresty:1.19.9.1-bionic
-    build:
-      context: ..
-      dockerfile: ./docker/openresty/Dockerfile
+    image: custom_openresty:1.19.9.1-bionic
     hostname: openrestyserver
     ports:
       - 3000:3000
