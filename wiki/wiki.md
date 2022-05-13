@@ -9,7 +9,7 @@ First install OpenResty and the Perl test framework as prerequisites:
 
 ```bash
 brew install openresty/brew/openresty
-cpan Test::Nginx
+sudo cpan Test::Nginx
 ```
 
 OpenResty will then point to an nginx instance at a path such as this.
@@ -117,3 +117,16 @@ Next run some curl based tests in another terminal window:
 ```
 
 To troubleshoot failures, see the `docker/response.txt` file and the gateway logs.
+
+## Publishing
+
+Update the tag within each rockspec file to a new version, eg v1.0.2, then rename the rockspec files.\
+Then check changes into GitHub, then create a new tag:
+
+```
+git tag v1.0.2
+git push --tags
+```
+
+Login to luarocks.org as curityio and upload the latest rockspec file.\
+luarocks install will then work for customers.
