@@ -1,8 +1,8 @@
 package = "kong-oauth-proxy"
-version = "1.0.2-1"
+version = "1.1.0-1"
 source = {
   url = "git://github.com/curityio/nginx-lua-oauth-proxy-plugin",
-  tag = "v1.0.2"
+  tag = "v1.1.0"
 }
 description = {
   summary = "A plugin used during API requests to deal with CORS and cookies, then forward access tokens",
