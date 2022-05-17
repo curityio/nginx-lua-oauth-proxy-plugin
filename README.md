@@ -28,6 +28,28 @@ See also the following resources:
 - The [Example SPA](https://github.com/curityio/web-oauth-via-bff), which acts as a client to this plugin.
 - The [OAuth Agent API](https://github.com/curityio/token-handler-node-express), which issues the secure cookies for the SPA.
 
+## Installation
+
+### Kong API Gateway
+
+If you are using luarocks, execute the following command to install the plugin:
+
+```bash
+luarocks install kong-oauth-proxy
+```
+
+Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/phantom-token`
+
+### OpenResty
+
+If you are using luarocks, execute the following command to install the plugin:
+
+```bash
+luarocks install lua-resty-oauth-proxy
+```
+
+Or deploy the `plugin.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.
+
 ## Required Configuration Directives
 
 All of the settings in this section are required:
