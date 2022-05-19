@@ -38,7 +38,7 @@ If you are using luarocks, execute the following command to install the plugin:
 luarocks install kong-oauth-proxy
 ```
 
-Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/phantom-token`
+Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/oauth-proxy`.
 
 ### OpenResty
 
