@@ -237,6 +237,13 @@ local function decrypt_cookie(encrypted_cookie, encryption_key_bytes)
 end
 
 --
+-- Origin and CSRF checks work differently for this type of command
+--
+local function is_data_changing_command(method)
+    return method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH'
+end
+
+--
 -- The public entry point to decrypt a secure cookie from SPAs and forward the contained access token
 --
 function _M.run(config)
@@ -273,9 +280,10 @@ function _M.run(config)
         end
     end
 
-    -- For cross domain cookie requests, verify the web origin in line with OWASP CSRF best practices
-    -- Do not do this in same domain setups, since the origin header is not sent
-    if config.cors_enabled then
+    -- Verify the web origin in line with OWASP CSRF best practices
+    -- In same domain setups this header is not sent in GET or HEAD requests
+    if config.cors_enabled or is_data_changing_command(method) then
+        
         local web_origin = ngx.req.get_headers()['origin']
         if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
             ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
@@ -285,7 +293,7 @@ function _M.run(config)
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
-    if method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH' then
+    if is_data_changing_command(method) then
 
         local csrf_cookie_name = 'cookie_' .. config.cookie_name_prefix .. '-csrf'
         local csrf_cookie = ngx.var[csrf_cookie_name]
