@@ -110,7 +110,7 @@ local function add_cors_response_headers(config, is_error)
     local origin = ngx.req.get_headers()['origin']
     if origin and array_has_value(config.trusted_web_origins, origin) then
         
-        if config.cors_enabled or is_error then
+        if config.cors_enabled then
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
         end
@@ -273,12 +273,15 @@ function _M.run(config)
         end
     end
 
-    -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
-    local web_origin = ngx.req.get_headers()['origin']
-    if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
-        ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
-        unauthorized_request_error_response(config)
-        return
+    -- For cross domain cookie requests, verify the web origin in line with OWASP CSRF best practices
+    -- Do not do this in same domain setups, since the origin header is not sent
+    if config.cors_enabled then
+        local web_origin = ngx.req.get_headers()['origin']
+        if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
+            ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
+            unauthorized_request_error_response(config)
+            return
+        end
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
