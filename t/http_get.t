@@ -494,3 +494,46 @@ authorization: Bearer xxx
 
 --- error_log
 No access token cookie was sent with the request
+
+=== TEST HTTP_GET_13: Same origin GET with a valid cookie returns 200 and an Authorization header
+#########################################################################################################
+# Ensure that GET requests work as expected when same domain hosting is used and no origin header is sent
+#########################################################################################################
+
+--- config
+location /t {
+    
+    rewrite_by_lua_block {
+
+        local config = {
+            cookie_name_prefix = 'example',
+            encryption_key = '4e4636356d65563e4c73233847503e3b21436e6f7629724950526f4b5e2e4e50',
+            trusted_web_origins = {
+                'http://www.example.com'
+            },
+            cors_enabled = false
+        }
+
+        local oauthProxy = require 'oauth-proxy'
+        oauthProxy.run(config)
+    }
+    
+    proxy_pass http://localhost:1984/target;
+}
+location /target {
+    add_header 'authorization' $http_authorization;
+    return 200;
+}
+
+--- request
+GET /t
+
+--- more_headers eval
+my $data;
+$data .= "cookie: example-at=" . $main::at_opaque_cookie . "\n";
+$data;
+
+--- error_code: 200
+
+--- response_headers eval
+"authorization: Bearer " . $main::at_opaque

@@ -110,7 +110,7 @@ local function add_cors_response_headers(config, is_error)
     local origin = ngx.req.get_headers()['origin']
     if origin and array_has_value(config.trusted_web_origins, origin) then
         
-        if config.cors_enabled or is_error then
+        if config.cors_enabled then
             ngx.header['access-control-allow-origin'] = origin
             ngx.header['access-control-allow-credentials'] = 'true'
         end
@@ -237,6 +237,13 @@ local function decrypt_cookie(encrypted_cookie, encryption_key_bytes)
 end
 
 --
+-- Origin and CSRF checks work differently for this type of command
+--
+local function is_data_changing_command(method)
+    return method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH'
+end
+
+--
 -- The public entry point to decrypt a secure cookie from SPAs and forward the contained access token
 --
 function _M.run(config)
@@ -273,16 +280,20 @@ function _M.run(config)
         end
     end
 
-    -- For cookie requests, verify the web origin in line with OWASP CSRF best practices
-    local web_origin = ngx.req.get_headers()['origin']
-    if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
-        ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
-        unauthorized_request_error_response(config)
-        return
+    -- Verify the web origin in line with OWASP CSRF best practices
+    -- In same domain setups this header is not sent in GET or HEAD requests
+    if config.cors_enabled or is_data_changing_command(method) then
+        
+        local web_origin = ngx.req.get_headers()['origin']
+        if not web_origin or not array_has_value(config.trusted_web_origins, web_origin) then
+            ngx.log(ngx.WARN, 'The request was from an untrusted web origin')
+            unauthorized_request_error_response(config)
+            return
+        end
     end
 
     -- For data changing requests do double submit cookie verification in line with OWASP CSRF best practices
-    if method == 'POST' or method == 'PUT' or method == 'DELETE' or method == 'PATCH' then
+    if is_data_changing_command(method) then
 
         local csrf_cookie_name = 'cookie_' .. config.cookie_name_prefix .. '-csrf'
         local csrf_cookie = ngx.var[csrf_cookie_name]
