@@ -2,7 +2,7 @@
 -- The main plugin implementation that can run in an NGINX system with the LUA module enabled
 --
 
-local _M = { conf = {} }
+local _M = {}
 
 local base64 = require 'ngx.base64'
 local cipher = require 'resty.openssl.cipher'
