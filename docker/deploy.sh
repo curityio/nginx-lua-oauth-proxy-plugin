@@ -36,7 +36,7 @@ fi
 # Build a custom Docker image, which uses 'luarocks make' to deploy the plugin
 #
 if [ "$PROFILE" == 'kong' ]; then
-  docker build -f docker/kong/Dockerfile --no-cache -t custom_kong:2.6.0-alpine .
+  docker build -f docker/kong/Dockerfile --no-cache -t custom_kong:3.0.0-alpine .
 else
   docker build -f docker/openresty/Dockerfile --no-cache -t custom_openresty:1.19.9.1-bionic .
 fi

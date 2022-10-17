@@ -1,4 +1,4 @@
-FROM kong:2.6.0-alpine
+FROM kong:3.0.0-alpine
 
 # Deploy the plugin and dependencies for local testing
 USER root

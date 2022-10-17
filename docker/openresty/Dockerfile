@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.19.9.1-bionic
+FROM openresty/openresty:1.21.4.1-bionic
 
 # Deploy the plugin and dependencies for local testing
 COPY ./lua*.rockspec     /tmp/oauth-proxy/
