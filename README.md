@@ -258,8 +258,7 @@ If you prefer you can configure `cors_enabled=false`, in which case you'll need 
 
 ## Deployment
 
-The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty and Kong deployment examples.\
-The LUA files are simply copied to the deployed system's LUA plugins folder.
+The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty and Kong deployment examples.
 
 ## Development and Testing
 
