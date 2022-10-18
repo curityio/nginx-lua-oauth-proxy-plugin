@@ -265,7 +265,7 @@ The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty
 The following resources provide further details on how to make code changes to this repo:
 
 - [Website Tutorial](https://curity.io/resources/learn/oauth-proxy-plugin-lua)
-- [Wiki](/wiki/wiki.md)
+- [Wiki](wiki)
 
 ## More Information
 
