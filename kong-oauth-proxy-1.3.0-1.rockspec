@@ -28,7 +28,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["kong.plugins.oauth-proxy.access"]  = "plugin/plugin.lua",
+    ["kong.plugins.oauth-proxy.access"]  = "plugin/access.lua",
     ["kong.plugins.oauth-proxy.handler"] = "plugin/handler.lua",
     ["kong.plugins.oauth-proxy.schema"]  = "plugin/schema.lua"
   }

@@ -28,6 +28,6 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["resty.oauth-proxy"] = "plugin/plugin.lua"
+    ["resty.oauth-proxy"] = "plugin/access.lua"
   }
 }
