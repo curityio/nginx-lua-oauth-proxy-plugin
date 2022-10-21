@@ -22,7 +22,7 @@ export PATH=${PATH}:"$OPENRESTY_ROOT/nginx/sbin"
 #
 # Copy the latest plugin to the LUA libraries folder
 #
-cp plugin/plugin.lua "$OPENRESTY_ROOT/lualib/oauth-proxy.lua"
+cp plugin/access.lua "$OPENRESTY_ROOT/lualib/oauth-proxy.lua"
 
 #
 # Run all tests

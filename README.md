@@ -48,7 +48,7 @@ If you are using luarocks, execute the following command to install the plugin:
 luarocks install lua-resty-oauth-proxy 1.3.0
 ```
 
-Or deploy the `plugin.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.
+Or deploy the `access.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.
 
 ## Required Configuration Directives
 
