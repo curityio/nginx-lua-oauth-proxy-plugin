@@ -38,7 +38,8 @@ If you are using luarocks, execute the following command to install the plugin:
 luarocks install kong-oauth-proxy 1.3.0
 ```
 
-Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/oauth-proxy`.
+Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/oauth-proxy`.\
+A typical install location for LUA files is at `/usr/local/openresty/luajit/share/lua/5.1/resty`.
 
 ### OpenResty
 
