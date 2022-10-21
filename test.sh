@@ -12,7 +12,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 #
 # Point to the OpenResty install
 #
-OPENRESTY_ROOT=/usr/local/Cellar/openresty/1.19.9.1_2
+OPENRESTY_ROOT=/usr/local/Cellar/openresty/1.21.4.1_1
 
 #
 # Ensure that the OpenResty nginx, with LUA support, will be found by the prove tool
@@ -22,7 +22,7 @@ export PATH=${PATH}:"$OPENRESTY_ROOT/nginx/sbin"
 #
 # Copy the latest plugin to the LUA libraries folder
 #
-cp plugin/plugin.lua "$OPENRESTY_ROOT/lualib/oauth-proxy.lua"
+cp plugin/access.lua "$OPENRESTY_ROOT/lualib/oauth-proxy.lua"
 
 #
 # Run all tests

@@ -42,7 +42,7 @@ The OAuth proxy configuration is invalid and must be corrected
 
 === TEST CONFIG_2: A deployment with missing data does not crash NGINX
 #######################################################################################################
-# Verify that empty configuration is handled in a controller manner rather than causing server problems
+# Verify that empty configuration is handled in a controlled manner rather than causing server problems
 #######################################################################################################
 
 --- config
@@ -69,7 +69,7 @@ The OAuth proxy configuration is invalid and must be corrected
 
 === TEST CONFIG_3: A deployment with a misspelt field does not crash NGINX
 #####################################################################################################
-# Verify that bad configuration is handled in a controller manner rather than causing server problems
+# Verify that bad configuration is handled in a controlled manner rather than causing server problems
 #####################################################################################################
 
 --- config
@@ -176,9 +176,9 @@ The encryption key contains invalid hex characters
 {"code":"server_error", "message":"Problem encountered processing the request"}
 
 === TEST CONFIG_6: CORS can be disabled and handled in API code instead
-###########################################################
+############################################################################
 # Verify that when cors_enabled is false it does not return any CORS headers
-###########################################################
+############################################################################
 
 --- config
 location /t {

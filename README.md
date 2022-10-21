@@ -35,7 +35,7 @@ See also the following resources:
 If you are using luarocks, execute the following command to install the plugin:
 
 ```bash
-luarocks install kong-oauth-proxy
+luarocks install kong-oauth-proxy 1.3.0
 ```
 
 Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/oauth-proxy`.
@@ -45,10 +45,10 @@ Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/
 If you are using luarocks, execute the following command to install the plugin:
 
 ```bash
-luarocks install lua-resty-oauth-proxy
+luarocks install lua-resty-oauth-proxy 1.3.0
 ```
 
-Or deploy the `plugin.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.
+Or deploy the `access.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.
 
 ## Required Configuration Directives
 
@@ -258,15 +258,14 @@ If you prefer you can configure `cors_enabled=false`, in which case you'll need 
 
 ## Deployment
 
-The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty and Kong deployment examples.\
-The LUA files are simply copied to the deployed system's LUA plugins folder.
+The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty and Kong deployment examples.
 
 ## Development and Testing
 
 The following resources provide further details on how to make code changes to this repo:
 
 - [Website Tutorial](https://curity.io/resources/learn/oauth-proxy-plugin-lua)
-- [Wiki](/wiki/wiki.md)
+- [Wiki](https://github.com/curityio/nginx-lua-oauth-proxy-plugin/wiki)
 
 ## More Information
 

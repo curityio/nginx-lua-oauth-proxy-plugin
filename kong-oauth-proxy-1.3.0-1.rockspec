@@ -1,16 +1,16 @@
-package = "lua-resty-oauth-proxy"
-version = "1.2.0-1"
+package = "kong-oauth-proxy"
+version = "1.3.0-1"
 source = {
   url = "git://github.com/curityio/nginx-lua-oauth-proxy-plugin",
-  tag = "v1.2.0"
+  tag = "v1.3.0"
 }
 description = {
-  summary = "A LUA plugin used during API requests to deal with CORS and cookies, then forward access tokens",
+  summary = "A plugin used during API requests to deal with CORS and cookies, then forward access tokens",
   homepage = "https://curity.io/product/token-service/oauth-for-web/",
   license = "Apache 2.0",
   detailed = [[
         The Curity OAuth Proxy is a LUA library used when Single Page Applications (SPAs) call APIs.
-        It can be used with an NGINX based system with the LUA module enabled, such as OpenResty.
+        This version is designed to be used by Kong API Gateway, including the open source version.
         Secure cookies are first issued to the SPA by a separate token handler (OAuth Agent).
         During API requests the plugin first validates web origins against a whitelist of trusted origins.
         It then provides CORS responses headers needed for the SPA to make cross origin requests.
@@ -19,7 +19,7 @@ description = {
         The access token is then forwarded to the API using the HTTP Authorization header.
         All of this provides strongest browser security without needing any API code changes.
   ]],
-  summary = "A LUA plugin used during API requests to deal with CORS and cookies, then forward access tokens"
+  summary = "A Kong plugin used during API requests to deal with CORS and cookies, then forward access tokens"
 }
 dependencies = {
   "lua >= 5.1",
@@ -28,6 +28,8 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["resty.oauth-proxy"] = "plugin/plugin.lua"
+    ["kong.plugins.oauth-proxy.access"]  = "plugin/access.lua",
+    ["kong.plugins.oauth-proxy.handler"] = "plugin/handler.lua",
+    ["kong.plugins.oauth-proxy.schema"]  = "plugin/schema.lua"
   }
 }

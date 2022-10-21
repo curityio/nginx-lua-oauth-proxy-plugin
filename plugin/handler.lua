@@ -2,18 +2,15 @@
 -- The Kong entry point handler
 --
 
-local BasePlugin = require "kong.plugins.base_plugin"
 local access = require "kong.plugins.oauth-proxy.access"
 
-local TokenHandler = BasePlugin:extend()
-TokenHandler.PRIORITY = 2000
-
-function TokenHandler:new()
-    TokenHandler.super.new(self, "oauth-proxy")
-end
+-- See https://github.com/Kong/kong/discussions/7193 for more about the PRIORITY field
+local TokenHandler = {
+    PRIORITY = 2000,
+    VERSION = "1.3.0",
+}
 
 function TokenHandler:access(conf)
-    TokenHandler.super.access(self)
     access.run(conf)
 end
 
