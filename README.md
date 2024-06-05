@@ -35,7 +35,7 @@ See also the following resources:
 If you are using luarocks, execute the following command to install the plugin:
 
 ```bash
-luarocks install kong-oauth-proxy 1.3.1
+luarocks install kong-oauth-proxy 1.3.0
 ```
 
 Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/5.1/kong/plugins/oauth-proxy`.
@@ -45,7 +45,7 @@ Or deploy the .lua files into Kong's plugin directory, eg `/usr/local/share/lua/
 If you are using luarocks, execute the following command to install the plugin:
 
 ```bash
-luarocks install lua-resty-oauth-proxy 1.3.1
+luarocks install lua-resty-oauth-proxy 1.3.0
 ```
 
 Or deploy the `access.lua` file to `resty/oauth-proxy.lua`, where the resty folder is in the `lua_package_path`.\
