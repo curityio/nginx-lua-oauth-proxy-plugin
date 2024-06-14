@@ -14,8 +14,7 @@ This plugin performs the role of an `OAuth Proxy` in this solution, to make API 
 
 ![Logical Components](/images/logical-components.png)
 
-The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.\
-See the [Curity OAuth for Web Home Page](https://curity.io/product/token-service/oauth-for-web/) for further details on this pattern.
+The plugin translates from encrypted cookies to tokens, so that APIs receive JWTs in the standard way.
 
 ## Components
 
@@ -263,9 +262,8 @@ The example [Docker Compose File](/docker/docker-compose.yml) provides OpenResty
 
 ## Development and Testing
 
-The following resources provide further details on how to make code changes to this repo:
+The following resource provides further details on how to make code changes to this repo:
 
-- [Website Tutorial](https://curity.io/resources/learn/oauth-proxy-plugin-lua)
 - [Wiki](https://github.com/curityio/nginx-lua-oauth-proxy-plugin/wiki)
 
 ## More Information
